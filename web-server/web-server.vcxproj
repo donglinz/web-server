@@ -68,13 +68,19 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\local\boost_1_62_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\local\boost_1_62_0\bin.v2\libs\system\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\libs;C:\local\boost_1_62_0\bin.v2\libs;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\local\boost_1_62_0\bin.v2\libs\system\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\libs;C:\local\boost_1_62_0\bin.v2\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -110,6 +116,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="ServerBase.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Server.hpp" />
+    <ClInclude Include="ServerBase.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
