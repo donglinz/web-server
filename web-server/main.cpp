@@ -19,6 +19,8 @@
 #include <thread>
 #include <vector>
 #include <map>
+#include "Server.hpp"
+#include "ServerBase.hpp"
 
 int main() {
 	//boost::asio::io_service io;
@@ -26,6 +28,7 @@ int main() {
 	//unsigned short port = 8080;
 	//boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
 	//boost::asio::ip::tcp::acceptor acceptor(io, endpoint);
+	//WebServerBase::Server<HTTP> a((unsigned short)(1), size_t(2));
 
 	system("pause");
 	return 0;

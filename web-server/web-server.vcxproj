@@ -70,7 +70,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\local\boost_1_62_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\local\boost_1_62_0\bin.v2\libs\system\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\libs;C:\local\boost_1_62_0\bin.v2\libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\local\boost_1_62_0\bin.v2\libs\regex\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\bin.v2\libs\date_time\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\bin.v2\libs\system\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\libs;C:\local\boost_1_62_0\bin.v2\libs;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\local\boost_1_62_0;$(IncludePath)</IncludePath>
+    <LibraryWPath>$(LibraryWPath)</LibraryWPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -79,7 +83,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\local\boost_1_62_0\bin.v2\libs\system\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\libs;C:\local\boost_1_62_0\bin.v2\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\local\boost_1_62_0\bin.v2\libs\regex\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\bin.v2\libs\date_time\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\bin.v2\libs\system\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\libs;C:\local\boost_1_62_0\bin.v2\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -88,6 +92,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\local\boost_1_62_0\bin.v2\libs\regex\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\bin.v2\libs\date_time\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;C:\local\boost_1_62_0\bin.v2\libs\system\build\msvc-14.0\dbg\adrs-mdl-64\lnk-sttc\thrd-mlt;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -123,6 +130,9 @@
   <ItemGroup>
     <ClInclude Include="Server.hpp" />
     <ClInclude Include="ServerBase.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
