@@ -31,11 +31,12 @@ namespace WebServerBase{
 	class ServerBase
 	{
 	public:
-		ServerBase(unsigned short port, size_t num_threads = 1);
+		explicit ServerBase(unsigned short port, size_t num_threads = 1);
 
 		virtual ~ServerBase();
 		// Æô¶¯·þÎñÆ÷
 		void start();
+		void hehehe() = delete;
 
 	protected:
 

@@ -7,7 +7,7 @@ namespace WebServerBase {
 		public ServerBase<socket_type>
 	{
 	public:
-		Server();
+		Server(unsigned short port, size_t num_threads);
 		~Server();
 	};
 }
