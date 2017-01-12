@@ -5,7 +5,7 @@
 template<typename socket_type>
 WebServerBase::ServerBase<socket_type>::ServerBase(unsigned short port, size_t num_threads) :
 	endpoint(boost::asio::ip::tcp::v4(), port),
-	acceptor(m_io_service, endpoing),
+	acceptor(m_io_service, endpoint),
 	num_threads(num_threads) {}
 
 template<typename socket_type>
@@ -16,15 +16,15 @@ WebServerBase::ServerBase<socket_type>::~ServerBase()
 template<typename socket_type>
 void WebServerBase::ServerBase<socket_type>::start()
 {
-	// ÏÈÆ¥ÅäÌØÊâ×ÊÔ´´¦Àí·½Ê½£¬Ã»ÓĞÆ¥ÅäµÄ»°ÓÃÄ¬ÈÏ×ÊÔ´´¦Àí·½Ê½
-	for (auto it = resource.begin(); it != resoutce.end(); ++it) {
+	// å…ˆåŒ¹é…ç‰¹æ®Šèµ„æºå¤„ç†æ–¹å¼ï¼Œæ²¡æœ‰åŒ¹é…çš„è¯ç”¨é»˜è®¤èµ„æºå¤„ç†æ–¹å¼
+	for (auto it = resource.begin(); it != resource.end(); ++it) {
 		all_resources.push_back(it);
 	}
-	for (auto it = default_resource.begin(); it != default_resoutce.end(); ++it) {
+	for (auto it = default_resource.begin(); it != default_resource.end(); ++it) {
 		all_resources.push_back(it);
 	}
 
-	// µ÷ÓÃ×ÓÀàÁ¬½Ó·½Ê½
+	// è°ƒç”¨å­ç±»è¿æ¥æ–¹å¼
 	accept();
 
 	for (size_t i = 1; i < num_threads; ++i) {
@@ -67,7 +67,7 @@ void WebServerBase::ServerBase<socket_type>::process_request_and_responce(std::s
 					boost::asio::transfer_exactly(stoull(request->header["Content-Length"]) - num_additional_bytes),
 					[this, socket, read_buffer, request](const boost::system::error_code& ec, size_t bytes_transferred) {
 					if (!ec) {
-						// ½«Ö¸Õë×÷Îª istream ¶ÔÏó´æ´¢µ½ read_buffer ÖĞ
+						// å°†æŒ‡é’ˆä½œä¸º istream å¯¹è±¡å­˜å‚¨åˆ° read_buffer ä¸­
 						request->content = std::shared_ptr<std::istream>(new std::istream(read_buffer.get()));
 						respond(socket, request);
 					}
@@ -104,7 +104,7 @@ WebServerBase::Request WebServerBase::ServerBase<socket_type>::prase_Request(std
 		do {
 			getline(stream, line);
 			line.pop_back();
-			matched = std::_Regex_match1(line, sub_match, regex);
+			matched = std::regex_match(line, sub_match, regex);
 			if (matched) {
 				request.header[sub_match[1]] = sub_match[2];
 			}
