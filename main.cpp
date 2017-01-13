@@ -6,9 +6,11 @@
 // Description : Hello World in C++, Ansi-style
 //============================================================================
 
-#include "Server.hpp"
-#include "ServerBase.hpp"
-
+#include <iostream>
+#include "ServerHttp.hpp"
+typedef boost::asio::ip::tcp::socket HTTP;
 int main() {
+	std::thread t1;
+	
 	return 0;
 }
