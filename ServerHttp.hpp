@@ -11,7 +11,7 @@ namespace WebServer {
 	{
 	public:
 		ServerHttp(unsigned short port, size_t num_threads = 1);
-		~ServerHttp();
+		virtual ~ServerHttp();
 	
 	private:
 		virtual void accept();
