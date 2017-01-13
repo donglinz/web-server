@@ -9,8 +9,9 @@
 #include <iostream>
 #include "ServerHttp.hpp"
 typedef boost::asio::ip::tcp::socket HTTP;
+
 int main() {
-	std::thread t1;
+	WebServer::ServerHttp<HTTP> server(12345, 4);
 	
 	return 0;
 }
