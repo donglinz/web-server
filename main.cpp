@@ -8,10 +8,12 @@
 
 #include <iostream>
 #include "ServerHttp.hpp"
+#include "handler.hpp"
 typedef boost::asio::ip::tcp::socket HTTP;
 
 int main() {
-	WebServer::ServerHttp<HTTP> server(12345, 4);
-	
+    Handler<WebServer::ServerHttp<HTTP> > hd;
+    WebServer::ServerHttp<HTTP> server(12345, 4);
+    hd.start_server(server);
 	return 0;
 }
