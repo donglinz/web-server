@@ -4,6 +4,8 @@
 #include <regex>
 #include <boost/asio.hpp>
 #include <ostream>
+#include <fstream>
+
 namespace WebServer{
 
     struct Request {
@@ -66,12 +68,24 @@ namespace WebServer{
         Request prase_request(std::istream& stream) const;
 
         void respond(std::shared_ptr<socket_type> socket, std::shared_ptr<Request> request) const;
+
+    private:
+        void init_resource();
+
+        void not_found(std::ostream & responce);
+
+        std::string root_directory;
+
+        std::regex re_path_contain_file = std::regex("^([a-zA-Z0-9/._-]+)/([a-zA-Z0-9._-]+)\\.([a-z]+)$");
+        std::regex re_is_index = std::regex("^web/([a-zA-Z0-9._-]+/)?([a-zA-Z0-9./_-]*)index.html$");
     };
     template<typename socket_type>
     WebServer::ServerBase<socket_type>::ServerBase(unsigned short port, size_t num_threads) :
             endpoint(boost::asio::ip::tcp::v4(), port),
             acceptor(m_io_service, endpoint),
-            num_threads(num_threads) {}
+            num_threads(num_threads) {
+        init_resource();
+    }
 
     template<typename socket_type>
     WebServer::ServerBase<socket_type>::~ServerBase()
@@ -226,6 +240,108 @@ namespace WebServer{
     template<typename socket_type>
     void ServerBase<socket_type>::add_default_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&)> func) {
         default_resource[path][method] = func;
+    }
+
+    template<typename socket_type>
+    void ServerBase<socket_type>::init_resource() {
+        // 处理访问 /string 的 POST 请求，返回 POST 的字符串
+        add_resource("^/string/?$", "POST",
+                     [](std::ostream& response, WebServer::Request& request) {
+                         // 从 istream 中获取字符串 (*request.content)
+                         std::stringstream ss;
+                         *request.content >> ss.rdbuf();     // 将请求内容读取到 stringstream
+                         std::string content=ss.str();
+
+                         // 直接返回请求结果
+                         response << "HTTP/1.1 200 OK\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+                     });
+
+        // 处理访问 /info 的 GET 请求, 返回请求的信息
+        add_resource("^/info/?$", "GET",
+                     [](std::ostream& response, WebServer::Request& request) {
+                         std::stringstream content_stream;
+                         content_stream << "<h1>Request:</h1>";
+                         content_stream << request.method << " " << request.path << " HTTP/" << request.http_version << "<br>";
+                         for(auto& header: request.header) {
+                             content_stream << header.first << ": " << header.second << "<br>";
+                         }
+
+                         // 获得 content_stream 的长度(使用 content.tellp() 获得)
+                         content_stream.seekp(0, std::ios::end);
+
+                         response <<  "HTTP/1.1 200 OK\r\nContent-Length: " << content_stream.tellp() << "\r\n\r\n" << content_stream.rdbuf();
+                     });
+
+        // 处理访问 /match/[字母+数字组成的字符串] 的 GET 请求, 例如执行请求 GET /match/abc123, 将返回 abc123
+        add_resource("^/match/([0-9a-zA-Z]+)/?$", "GET",
+                     [](std::ostream& response, WebServer::Request& request) {
+                         std::string number=request.path_match[1];
+                         response << "HTTP/1.1 200 OK\r\nContent-Length: " << number.length() << "\r\n\r\n" << number;
+                     } );
+
+        // 处理默认 GET 请求, 如果没有其他匹配成功，则这个匿名函数会被调用
+        // 将应答 web/ 目录及其子目录中的文件
+        // 默认文件: index.html
+        add_default_resource("^/?(.*)$", "GET",
+                             [this](std::ostream& response, WebServer::Request& request) {
+                                 // root directory of web resource
+                                 std::string filename = "web";
+
+                                 std::string path = request.path_match[0];
+
+                                 std::smatch sub_match;
+                                 filename += path;
+
+                                 if(strstr(filename.c_str(), "/../") != nullptr) {
+                                     not_found(response);
+                                     return;
+                                 }
+
+                                 if(!std::regex_match(filename, re_path_contain_file)) {
+                                     if(filename.back() != '/') {
+                                         filename += "/";
+                                     }
+                                     filename += "index.html";
+                                 }
+
+
+
+                                 if(std::regex_match(filename, sub_match, re_is_index)) {
+                                     std::cout << "match 1:" << sub_match[1] << std::endl;
+                                     std::cout << "match 2:" << sub_match[2] << std::endl;
+
+                                     root_directory = sub_match[1];
+                                     root_directory.pop_back();
+                                 } else {
+                                     size_t pos = filename.find('/');
+                                     filename = filename.substr(0, pos) + '/' + root_directory + filename.substr(pos);
+                                 }
+
+                                 std::ifstream ifs;
+                                 ifs.open(filename, std::ifstream::in | std::ifstream::binary);
+
+                                 if(ifs) {
+                                     ifs.seekg(0, std::ios::end);
+                                     size_t length = (size_t) ifs.tellg();
+
+                                     ifs.seekg(0, std::ios::beg);
+
+                                     // 文件内容拷贝到 response-stream 中，不应该用于大型文件
+                                     response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << ifs.rdbuf();
+
+                                     ifs.close();
+                                 } else {
+                                     // 文件不存在时，返回无法打开文件
+                                      std::string content="Could not open file " + filename;
+                                      response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+                                     //not_found(response);
+                                 }
+                             });
+    }
+
+    template<typename socket_type>
+    void ServerBase<socket_type>::not_found(std::ostream & responce) {
+        responce << "HTTP/1.1 404 Not Found\r\n";
     }
 }
 
