@@ -1,8 +1,10 @@
 *.d
-
 *.o
-
 Server
 .idea/
 CMakeLists.txt
 cmake-build-debug/
+server.csr
+server.key
+server.key.old
+
