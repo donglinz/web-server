@@ -4,6 +4,9 @@ Server
 .idea/
 CMakeLists.txt
 cmake-build-debug/
+CMakeFiles/
+cmake_install.cmake
+CMakeCache.txt
 server.csr
 server.key
 server.key.old
