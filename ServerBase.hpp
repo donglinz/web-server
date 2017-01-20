@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include <ostream>
 #include <fstream>
+#include <memory>
 
 namespace WebServer{
 
@@ -65,7 +66,7 @@ namespace WebServer{
         // implemention request and reponse
         void process_request_and_responce(std::shared_ptr<socket_type> socket) const;
 
-        Request prase_request(std::istream& stream) const;
+        std::shared_ptr<Request> prase_request(std::istream& stream) const;
 
         void respond(std::shared_ptr<socket_type> socket, std::shared_ptr<Request> request) const;
 
@@ -74,10 +75,10 @@ namespace WebServer{
 
         void not_found(std::ostream & responce);
 
-        std::string root_directory;
+        //std::string root_directory;
 
         std::regex re_path_contain_file = std::regex("^([a-zA-Z0-9/._-]+)/([a-zA-Z0-9._-]+)\\.([a-z]+)$");
-        std::regex re_is_index = std::regex("^web/([a-zA-Z0-9._-]+/)?([a-zA-Z0-9./_-]*)index.html$");
+        //std::regex re_is_index = std::regex("^web/([a-zA-Z0-9._-]+/)?([a-zA-Z0-9./_-]*)index.html$");
     };
     template<typename socket_type>
     WebServer::ServerBase<socket_type>::ServerBase(unsigned short port, size_t num_threads) :
@@ -143,9 +144,7 @@ namespace WebServer{
                                               // 转换到 istream
                                               std::istream stream(read_buffer.get());
 
-                                              auto request = std::make_shared<Request>();
-
-                                              *request = prase_request(stream);
+                                              std::shared_ptr<Request> request =  prase_request(stream);
 
                                               size_t num_additional_bytes = total - bytes_transferred;
 
@@ -170,9 +169,9 @@ namespace WebServer{
 
 
     template<typename socket_type>
-    WebServer::Request WebServer::ServerBase<socket_type>::prase_request(std::istream & stream) const
+    std::shared_ptr<Request> WebServer::ServerBase<socket_type>::prase_request(std::istream & stream) const
     {
-        Request request = WebServer::Request();
+        std::shared_ptr<Request> request = std::make_shared<Request>(WebServer::Request());
         // 使用正则表达式对请求报头进行解析，通过下面的正则表达式
         // 可以解析出请求方法(GET/POST)、请求路径以及 HTTP 版本
         std::regex regex("^([^ ]*) ([^ ]*) HTTP/([^ ]*)$");
@@ -181,12 +180,12 @@ namespace WebServer{
         //从第一行中解析请求方法、路径和 HTTP 版本
         std::string line;
 
-        getline(stream, line);
+        std::getline(stream, line);
         line.pop_back();
         if (std::regex_match(line, sub_match, regex)) {
-            request.method = sub_match[1];
-            request.path = sub_match[2];
-            request.http_version = sub_match[3];
+            request->method = sub_match[1];
+            request->path = sub_match[2];
+            request->http_version = sub_match[3];
 
             bool matched = false;
             regex = "^([^:]*): ?(.*)$";
@@ -195,7 +194,7 @@ namespace WebServer{
                 line.pop_back();
                 matched = std::regex_match(line, sub_match, regex);
                 if (matched) {
-                    request.header[sub_match[1]] = sub_match[2];
+                    request->header[sub_match[1]] = sub_match[2];
                 }
             } while (matched);
         }
@@ -304,18 +303,8 @@ namespace WebServer{
                                      filename += "index.html";
                                  }
 
+                                 filename = filename.substr(0, filename.find('?'));
 
-
-                                 if(std::regex_match(filename, sub_match, re_is_index)) {
-                                     std::cout << "match 1:" << sub_match[1] << std::endl;
-                                     std::cout << "match 2:" << sub_match[2] << std::endl;
-
-                                     root_directory = sub_match[1];
-                                     root_directory.pop_back();
-                                 } else {
-                                     size_t pos = filename.find('/');
-                                     filename = filename.substr(0, pos) + '/' + root_directory + filename.substr(pos);
-                                 }
 
                                  std::ifstream ifs;
                                  ifs.open(filename, std::ifstream::in | std::ifstream::binary);
