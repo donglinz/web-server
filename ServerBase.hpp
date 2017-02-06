@@ -6,6 +6,7 @@
 #include <ostream>
 #include <fstream>
 #include <memory>
+#include <algorithm>
 
 namespace WebServer{
 
@@ -186,7 +187,9 @@ namespace WebServer{
             request->method = sub_match[1];
             request->path = sub_match[2];
             request->http_version = sub_match[3];
-
+            if((request->path).find('?') != std::string::npos) {
+                request->path = (request->path).substr(0, (request->path).find('?'));
+            }
             bool matched = false;
             regex = "^([^:]*): ?(.*)$";
             do {
