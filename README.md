@@ -1,13 +1,13 @@
 #WebServer based on c++ and boost asio
 
-A light web server support static HTML page, get/post method.<br>
-support HTTP/HTTPS Protocol.<br>
+A light weight web server supporting static HTML page, get/post method.<br>
+Support HTTP/HTTPS Protocol.<br>
 
 #OS
-linux(ubunt is recommended).<br>
+Linux(ubunt is recommended).<br>
 
 #Complier
-Minimun : g++ 4.8 support c++ 11 stander.<br>
+Minimun require : g++ 4.8 support c++ 11 stander.<br>
 
 #Library
 boost_system ssl crypto pthread (See CMakeLists.txt).<br>
