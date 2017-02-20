@@ -9,7 +9,7 @@ Linux(ubunt is recommended).<br>
 #Complier
 Minimun require : g++ 4.8 support c++ 11 stander.<br>
 
-#Library
+#Library dependencies
 boost_system ssl crypto pthread (See CMakeLists.txt).<br>
 
 #Make
