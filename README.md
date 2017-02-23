@@ -1,6 +1,6 @@
 #WebServer based on c++ and boost asio
 
-A light weight web server supporting static HTML page, get/post method.<br>
+A light weight web server support static HTML page, get/post method.<br>
 Support HTTP/HTTPS Protocol.<br>
 
 #OS
@@ -28,19 +28,19 @@ Preceding file and directory can be saved in any place in your computer.
 
 Run as a HTTP server:<br>
 ```
-./web_server ServerHttp <port number> <thread num> 
+nohup ./web_server ServerHttp <port number> <thread num> 1>/dev/null 2>web_server.log.err &
 ```
 eg.<br>
 ```
-./web_server ServerHttp 12345 4
+nohup ./web_server ServerHttp 12345 4 1>/dev/null 2>web_server.log.err &
 ```
 Run as a HTTPS server:<br>
 ```
-./web_server ServerHttps <port number> <thread num> <public key filename> <private key filename>
+nohup ./web_server ServerHttps <port number> <thread num> <public key filename> <private key filename> 1>/dev/null 2>web_server.log.err &
 ```
 eg.<br>
 ```
-./web_server ServerHttps 12345 4 server.crt server.key 
+nohup ./web_server ServerHttps 12345 4 server.crt server.key 1>/dev/null 2>web_server.log.err &
 ```
 If you want run server at port 1~1023, please run as a superuser or add sudo to you command.<br>
 
