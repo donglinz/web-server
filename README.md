@@ -20,7 +20,12 @@ make
 ```
 
 #Run
-web/ is your website root directory. You must promise web/index.html is available.<br>
+Run file 'web-server' to start web server.   
+
+./web-server is your executable web server file and ./web/ is your website root directory. You must promise ./web/index.html is available. otherwise a 404 code will be responded.   
+
+Preceding file and directory can be saved in any place in your computer.   
+
 Run as a HTTP server:<br>
 ```
 ./web_server ServerHttp <port number> <thread num> 
@@ -41,9 +46,6 @@ If you want run server at port 1~1023, please run as a superuser or add sudo to 
 
 #DEMO
 [http://118.190.23.140:1234/index.html](http://118.190.23.140:1234/index.html)<br>
-
-#Reference
-https://www.shiyanlou.com/courses/568<br>
 
 #Contact me
 392183501@outlook.com<br>
