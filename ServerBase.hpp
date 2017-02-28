@@ -39,6 +39,8 @@ namespace WebServer{
         // 启动服务器
         void start();
 
+        void stop();
+
         void add_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&)>);
 
         void add_default_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&)>);
@@ -122,6 +124,10 @@ namespace WebServer{
         }
     }
 
+    template<typename socket_type>
+    void WebServer::ServerBase<socket_type>::stop() {
+
+    }
     template<typename socket_type>
     void WebServer::ServerBase<socket_type>::accept()
     {

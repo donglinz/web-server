@@ -10,3 +10,6 @@ server.csr
 server.key
 server.key.old
 
+log/
+php/
+xml/

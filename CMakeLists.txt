@@ -8,6 +8,9 @@ set(SOURCE_FILES
         main.cpp
         ServerBase.hpp
         ServerHttp.hpp
-        ServerHttps.hpp)
+        ServerHttps.hpp
+        xml/tinyxml2.h
+        xml/tinyxml2.cpp init/Initializer.cpp init/Initializer.h)
+include_directories(xml init log)
 link_libraries(-lboost_system -lssl -lcrypto -lpthread)
 add_executable(web_server ${SOURCE_FILES})
