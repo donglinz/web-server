@@ -17,9 +17,13 @@
 //typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> HTTPS;
 #include "Initializer.h"
 #include "Logger.h"
+#include "CacheManager.h"
+#include "ServerBase.hpp"
 int main(int argc, char *argv[]) {
     Initializer::init();
     Logger::init(Initializer::config[Configurations::logPath]);
+    CacheManager::init(Initializer::config[Configurations::enableCache],
+         Initializer::config[Configurations::cacheSize]);
 
 //    if(strcmp(argv[1], "ServerHttps") == 0) {
 //        std::cout << "https Server" << "\n" <<

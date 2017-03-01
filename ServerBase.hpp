@@ -7,7 +7,7 @@
 #include <fstream>
 #include <memory>
 #include <algorithm>
-
+#include "CacheManager.h"
 namespace WebServer{
 
     struct Request {
@@ -67,7 +67,7 @@ namespace WebServer{
 
         virtual void accept();
         // implemention request and reponse
-        void process_request_and_responce(std::shared_ptr<socket_type> socket) const;
+        void process_request_and_response(std::shared_ptr<socket_type> socket) const;
 
         std::shared_ptr<Request> prase_request(std::istream& stream) const;
 
@@ -77,6 +77,8 @@ namespace WebServer{
         void init_resource();
 
         void not_found(std::ostream & responce);
+
+        void no_cache_response(std::ostream & response, std::string & filename);
 
         //std::string root_directory;
 
@@ -134,7 +136,7 @@ namespace WebServer{
     }
 
     template<typename socket_type>
-    void WebServer::ServerBase<socket_type>::process_request_and_responce(std::shared_ptr<socket_type> socket) const
+    void WebServer::ServerBase<socket_type>::process_request_and_response(std::shared_ptr<socket_type> socket) const
     {
         // 为 async_read_untile() 创建新的读缓存
         // shared_ptr 用于传递临时对象给匿名函数
@@ -232,7 +234,7 @@ namespace WebServer{
                                              [this, socket, request, write_buffer](const boost::system::error_code& ec, size_t bytes_transferred) {
                                                  // HTTP 持久连接(HTTP 1.1), 递归调用
                                                  if(!ec && stod(request->http_version)>1.05)
-                                                     process_request_and_responce(socket);
+                                                     process_request_and_response(socket);
                                              });
                     return;
                 }
@@ -314,32 +316,47 @@ namespace WebServer{
 
                                  filename = filename.substr(0, filename.find('?'));
 
-
-                                 std::ifstream ifs;
-                                 ifs.open(filename, std::ifstream::in | std::ifstream::binary);
-
-                                 if(ifs) {
-                                     ifs.seekg(0, std::ios::end);
-                                     size_t length = (size_t) ifs.tellg();
-
-                                     ifs.seekg(0, std::ios::beg);
-
-                                     // 文件内容拷贝到 response-stream 中，不应该用于大型文件
-                                     response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << ifs.rdbuf();
-
-                                     ifs.close();
+                                 if(CacheManager::getCacheIsOpen()) {
+                                     char* rdbuf = CacheManager::getReadBuffer(filename);
+                                     if(rdbuf == nullptr) {
+                                         not_found(response);
+                                     } else {
+                                         size_t length = strlen(rdbuf);
+                                         response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << rdbuf;
+                                     }
+                                     CacheManager::unlockMutex();
                                  } else {
-                                     // 文件不存在时，返回无法打开文件
-                                      std::string content="Could not open file " + filename;
-                                      response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
-                                     //not_found(response);
+                                     no_cache_response(response, filename);
                                  }
+
                              });
     }
 
     template<typename socket_type>
-    void ServerBase<socket_type>::not_found(std::ostream & responce) {
-        responce << "HTTP/1.1 404 Not Found\r\n";
+    void ServerBase<socket_type>::not_found(std::ostream & response) {
+        std::string content="404 Not Found";
+        response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+    }
+
+    template <typename socket_type>
+    void ServerBase<socket_type>::no_cache_response(std::ostream &response, std::string & filename) {
+        std::ifstream ifs;
+        ifs.open(filename, std::ifstream::in | std::ifstream::binary);
+
+        if(ifs) {
+            ifs.seekg(0, std::ios::end);
+            size_t length = (size_t) ifs.tellg();
+
+            ifs.seekg(0, std::ios::beg);
+
+            // 文件内容拷贝到 response-stream 中，不应该用于大型文件
+            response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << ifs.rdbuf();
+
+            ifs.close();
+        } else {
+            // 文件不存在时，返回无法打开文件
+            not_found(response);
+        }
     }
 }
 
