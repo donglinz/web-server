@@ -5,6 +5,24 @@
 
 #include "Initializer.h"
 
+#define ON "on"
+#define OFF "off"
+#define DEFAULT_VALUE_PORT "12345"
+#define DEFAULT_VALUE_ENABLE_CACHE OFF
+#define DEFAULT_VALUE_CACHE_SIZE "10"
+#define DEFAULT_VALUE_LOG_PATH "log/"
+#define DEFAULT_VALUE_ERR_LOG_PATH "err_log/"
+#define DEFAULT_VALUE_WEB_ROOT_PATH "web/"
+#define DEFAULT_VALUE_NOT_FOUND_PATH ""
+#define DEFAULT_VALUE_PUBLIC_KEY ""
+#define DEFAULT_VALUE_PRIVATE_KEY ""
+#define DEFAULT_VALUE_HTTP_SERVER OFF
+#define DEFAULT_VALUE_HTTPS_SERVER OFF
+#define DEFAULT_VALUE_IP_BLACK_LIST OFF
+
+#define STD_OUTPUT_STREAM 1
+#define STD_ERROR_OUTPUT_STREAM 2
+
 namespace Configurations {
     std::string confName[] = {
             "port",
@@ -67,27 +85,26 @@ void Initializer::init() {
     }
 
 
-    if(config[Configurations::ipBlackList] == "on") {
+    if(config[Configurations::ipBlackList] == ON) {
         root = doc.RootElement();
         root = root->FirstChildElement("ipBlackList")->FirstChildElement();
         while(root != nullptr) {
-            std::string hehe = root->Name();
             ipBlackList.push_back(root->GetText());
             root = root->NextSiblingElement();
         }
     }
 
-    for(std::string s : ipBlackList) {
-        std::cout << s << std::endl;
-    }
+//    for(std::string s : ipBlackList) {
+//        std::cout << s << std::endl;
+//    }
 
     if(!checkConfigurations()) {
-        showConfigurations(2);
+        showConfigurations(STD_ERROR_OUTPUT_STREAM);
         std::cerr << "Configurations error in file WebConfig.xml please check carefully." << std::endl;
         exit(1);
     }
 
-    showConfigurations(1);
+    showConfigurations(STD_OUTPUT_STREAM);
 
     std::cout << "Starting server..." << std::endl;
 }
@@ -105,33 +122,32 @@ void Initializer::cacheConfig(tinyxml2::XMLElement* root) {
     loadConfig(root);
 }
 
-
 /* 初始化默认设置 */
 void Initializer::initConfigMap() {
     /* default port 12345 */
-    config[Configurations::port] = "12345";
+    config[Configurations::port] = DEFAULT_VALUE_PORT;
     /* default enable catch */
-    config[Configurations::enableCache] = "off";
+    config[Configurations::enableCache] = DEFAULT_VALUE_ENABLE_CACHE;
     /* default cache size 10kb */
-    config[Configurations::cacheSize] = "10";
+    config[Configurations::cacheSize] = DEFAULT_VALUE_CACHE_SIZE;
     /* default log path ./log */
-    config[Configurations::logPath] = "log/";
+    config[Configurations::logPath] = DEFAULT_VALUE_LOG_PATH;
     /* default error log path */
-    config[Configurations::errLogPath] = "err_log/";
+    config[Configurations::errLogPath] = DEFAULT_VALUE_ERR_LOG_PATH;
     /* default web root path */
-    config[Configurations::webRootPath] = "web/";
+    config[Configurations::webRootPath] = DEFAULT_VALUE_WEB_ROOT_PATH;
     /* default 404 page*/
-    config[Configurations::notFoundPath] = "";
+    config[Configurations::notFoundPath] = DEFAULT_VALUE_NOT_FOUND_PATH;
     /* default public key */
-    config[Configurations::publicKey] = "";
+    config[Configurations::publicKey] = DEFAULT_VALUE_PUBLIC_KEY;
     /* default private key */
-    config[Configurations::privateKey] = "";
+    config[Configurations::privateKey] = DEFAULT_VALUE_PRIVATE_KEY;
     /* default http server */
-    config[Configurations::httpServer] = "off";
+    config[Configurations::httpServer] = DEFAULT_VALUE_HTTP_SERVER;
     /* default https server */
-    config[Configurations::httpsServer] = "off";
+    config[Configurations::httpsServer] = DEFAULT_VALUE_HTTPS_SERVER;
     /* default ip black list is empty */
-    config[Configurations::ipBlackList] = "off";
+    config[Configurations::ipBlackList] = DEFAULT_VALUE_IP_BLACK_LIST;
 }
 
 /* 检车设置是否合法 */
@@ -143,13 +159,13 @@ bool Initializer::checkConfigurations() {
     }
 
     /* 至少开启一个服务器 */
-    if(config[Configurations::httpServer] == "off" &&
-       config[Configurations::httpsServer] == "off") {
+    if(config[Configurations::httpServer] == OFF &&
+       config[Configurations::httpsServer] == OFF) {
         std::cerr << "Config error!" << std::endl;
         return false;
     }
 
-    if(config[Configurations::httpsServer] == "on" &&
+    if(config[Configurations::httpsServer] == ON &&
        (config[Configurations::publicKey] == "" ||
        config[Configurations::privateKey] == "")) {
         std::cerr << "Config error!" << std::endl;
@@ -162,7 +178,7 @@ bool Initializer::checkConfigurations() {
 /* 显示当前服务器设置 fd==1是打印到标准输出,fd==2时打印到错误输出 */
 void Initializer::showConfigurations(int fd) {
     std::ostream *out;
-    if(fd == 1) out = &std::cout;
+    if(fd == STD_OUTPUT_STREAM) out = &std::cout;
     else out = &std::cerr;
     std::ostream &outStream = *out;
     for(std::map<Configurations::Configuration, std::string>::iterator

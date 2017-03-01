@@ -10,8 +10,9 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
+#include <dirent.h>
 #include "tinyxml2.h"
-#include "dirent.h"
+
 
 
 
@@ -36,12 +37,10 @@ namespace Configurations {
 class Initializer {
 public:
     static void init();
-
-private:
-
-
     static std::map<Configurations::Configuration , std::string> config;
     static std::vector<std::string> ipBlackList;
+
+private:
 
     static void initConfigMap();
     static void loadConfig(tinyxml2::XMLElement* root);

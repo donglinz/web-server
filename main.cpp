@@ -8,6 +8,7 @@
 
 //#include <iostream>
 //#include <cstring>
+#include <cstdio>
 //#include "ServerHttp.hpp"
 //#include "ServerHttps.hpp"
 //#include "handler.hpp"
@@ -15,8 +16,11 @@
 //typedef boost::asio::ip::tcp::socket HTTP;
 //typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> HTTPS;
 #include "Initializer.h"
+#include "Logger.h"
 int main(int argc, char *argv[]) {
     Initializer::init();
+    Logger::init(Initializer::config[Configurations::logPath]);
+
 //    if(strcmp(argv[1], "ServerHttps") == 0) {
 //        std::cout << "https Server" << "\n" <<
 //        "port : " <<  std::stoi(argv[2]) << "\n" <<
