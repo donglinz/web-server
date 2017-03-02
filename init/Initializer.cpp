@@ -19,6 +19,7 @@
 #define DEFAULT_VALUE_HTTP_SERVER OFF
 #define DEFAULT_VALUE_HTTPS_SERVER OFF
 #define DEFAULT_VALUE_IP_BLACK_LIST OFF
+#define DEFAULT_VALUE_THREAD_NUM "1"
 
 #define STD_OUTPUT_STREAM 1
 #define STD_ERROR_OUTPUT_STREAM 2
@@ -36,7 +37,8 @@ namespace Configurations {
             "httpServer",
             "httpsServer",
             "enableCache",
-            "ipBlackList"
+            "ipBlackList",
+            "threadNum"
     };
     std::unordered_map<std::string, Configuration> confId = {
             {"port", port},
@@ -50,7 +52,8 @@ namespace Configurations {
             {"httpServer", httpServer},
             {"httpsServer", httpsServer},
             {"enableCache", enableCache},
-            {"ipBlackList", ipBlackList}
+            {"ipBlackList", ipBlackList},
+            {"threadNum", threadNum}
     };
 };
 
@@ -148,6 +151,8 @@ void Initializer::initConfigMap() {
     config[Configurations::httpsServer] = DEFAULT_VALUE_HTTPS_SERVER;
     /* default ip black list is empty */
     config[Configurations::ipBlackList] = DEFAULT_VALUE_IP_BLACK_LIST;
+    /* default thread num is 1 */
+    config[Configurations::threadNum] = DEFAULT_VALUE_THREAD_NUM;
 }
 
 /* 检车设置是否合法 */
@@ -161,6 +166,12 @@ bool Initializer::checkConfigurations() {
     /* 至少开启一个服务器 */
     if(config[Configurations::httpServer] == OFF &&
        config[Configurations::httpsServer] == OFF) {
+        std::cerr << "Config error!" << std::endl;
+        return false;
+    }
+    /* 不能一次开两个服务器 */
+    if(config[Configurations::httpServer] == ON &&
+       config[Configurations::httpsServer] == ON) {
         std::cerr << "Config error!" << std::endl;
         return false;
     }

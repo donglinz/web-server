@@ -8,6 +8,8 @@
 #include <memory>
 #include <algorithm>
 #include "CacheManager.h"
+#include "Initializer.h"
+#include "Logger.h"
 namespace WebServer{
 
     struct Request {

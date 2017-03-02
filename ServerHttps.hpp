@@ -45,7 +45,7 @@ namespace WebServer {
             if(!ec) {
                 (*socket).async_handshake(boost::asio::ssl::stream_base::server,
                 [this, socket](const boost::system::error_code & ec) {
-                    if(!ec) ServerBase<socket_type>::process_request_and_responce(socket);
+                    if(!ec) ServerBase<socket_type>::process_request_and_response(socket);
                 });
             }
         });
