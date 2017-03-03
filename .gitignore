@@ -12,3 +12,4 @@ server.key.old
 
 log/
 php/
+web_server

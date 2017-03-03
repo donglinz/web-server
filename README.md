@@ -5,19 +5,31 @@
 支持静态HTML页面，GET/POST方法，可以方便的进行横向扩展以支持新的请求方法。
 服务器Cache利用LRU算法进行页面替换，减少磁盘IO次数，Cache大小可以在XML配置 文件中指定。
 #OS
-建议ubuntu<br>
+建议ubuntu14及以上<br>
 
 #Complier
 G++5及以上
 #Library dependencies
--lboost_system -lssl -lcrypto -lpthread -lboost_log -lboost_thread -lboost_log_setup (见 CMakeLists.txt).<br>  
+
+> boost_system 
+> ssl 
+> crypto 
+> pthread 
+> boost_log 
+> boost_thread 
+> boost_log_setup 
+
+(见 CMakeLists.txt).   
+
 强烈建议在本机用相同的编译器编译本程序以及Boost库,防止链接动态库时出错。
 #Make
-```bash
+```
 cd web-server
 cmake CMakeLists.txt
 make
-```  
+```
+  
+
 #Configurations
 
 所有的配置都要写在WebConfig.xml文件内，并放在和编译生成文件相同目录下WebConfig.xml.sample是一份样例配置，请按文件里的注释进行配置。
