@@ -1,46 +1,34 @@
 #WebServer based on c++ and boost asio
-
-A light weight web server support static HTML page, get/post method.<br>
-Support HTTP/HTTPS Protocol.<br>
-
+基于Boost Asio的多线程Web服务器。
+服务器由Web服务模块，日志模块，Cache模块，XML配置模块构成
+支持HTTP，HTTPS协议。HTTPS协议用asio::ssl::context对象对socket数据流进行加密， 通过async_handshake方法进行SSL握手。
+支持静态HTML页面，GET/POST方法，可以方便的进行横向扩展以支持新的请求方法。
+服务器Cache利用LRU算法进行页面替换，减少磁盘IO次数，Cache大小可以在XML配置 文件中指定。
 #OS
-Linux(ubunt is recommended).<br>
+建议ubuntu<br>
 
 #Complier
-Minimun require : g++ 4.8 support c++ 11 stander.<br>
-
+G++5及以上
 #Library dependencies
-boost_system ssl crypto pthread (See CMakeLists.txt).<br>
-
+-lboost_system -lssl -lcrypto -lpthread -lboost_log -lboost_thread -lboost_log_setup (见 CMakeLists.txt).<br>  
+强烈建议在本机用相同的编译器编译本程序以及Boost库,防止链接动态库时出错。
 #Make
 ```bash
-cd web-server 
-cmake CMakeLists.txt 
-make 
-```
+cd web-server
+cmake CMakeLists.txt
+make
+```  
+#Configurations
 
+所有的配置都要写在WebConfig.xml文件内，并放在和编译生成文件相同目录下WebConfig.xml.sample是一份样例配置，请按文件里的注释进行配置。
 #Run
-Run file 'web-server' to start web server.   
+运行'web-server'文件来开始服务器。
 
-./web-server is your executable web server file and ./web/ is your website root directory. You must promise ./web/index.html is available. otherwise a 404 code will be responded.   
-
-Preceding file and directory can be saved in any place in your computer.   
+./web-server 是服务器可执行文件。 ./web/是默认的web根目录(可以在WebConfig.xml中修改). 必需保证Web根目录下有index.html文件. 否则服务器将会返回一个404页面。
 
 Run as a HTTP server:<br>
 ```
-nohup ./web_server ServerHttp <port number> <thread num> 1>/dev/null 2>web_server.log.err &
-```
-eg.<br>
-```
-nohup ./web_server ServerHttp 12345 4 1>/dev/null 2>web_server.log.err &
-```
-Run as a HTTPS server:<br>
-```
-nohup ./web_server ServerHttps <port number> <thread num> <public key filename> <private key filename> 1>/dev/null 2>web_server.log.err &
-```
-eg.<br>
-```
-nohup ./web_server ServerHttps 12345 4 server.crt server.key 1>/dev/null 2>web_server.log.err &
+nohup ./web_server &
 ```
 If you want run server at port 1~1023, please run as a superuser or add sudo to you command.<br>
 

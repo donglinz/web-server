@@ -158,8 +158,9 @@ void Initializer::initConfigMap() {
 /* 检车设置是否合法 */
 bool Initializer::checkConfigurations() {
     int port = std::stoi(config[Configurations::port]);
-    if(port < 0 || port > 65535) {
+    if(port < 0 || port > UINT16_MAX) {
         std::cerr << "Config error!" << std::endl;
+
         return false;
     }
 

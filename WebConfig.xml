@@ -1,0 +1,44 @@
+<!-- web服务器设置 路径可以用绝对路径 也可以用相对路径-->
+<configurations>
+    <!-- 服务器设置 http 和 https服务器只能开启一个 -->
+    <server_config>
+        <!-- 运行端口 -->
+        <port>12345</port>
+        <!-- 运行线程数量 -->
+        <threadNum>4</threadNum>
+        <!-- web根目录,即网站所在目录,必须存在web/index.html-->
+        <webRootPath>web/</webRootPath>
+        <!-- 是否开启HTTP服务器 开启填写on,关闭填写off-->
+        <httpServer>on</httpServer>
+        <!-- 是否开启HTTPS服务器 开启填写on,关闭填写off-->
+        <httpsServer>off</httpsServer>
+        <!-- 是否用指定404页面,不指定留空 -->
+        <notFoundPath></notFoundPath>
+        <!-- 是否启用IP黑名单 开启填写on,关闭填写off-->
+        <ipBlackList>on</ipBlackList>
+        <!-- 开启HTTPS服务器的话必须填写 -->
+        <publicKey></publicKey>
+        <!-- 开启HTTPS服务器的话必须填写 -->
+        <privateKey></privateKey>
+    </server_config>
+
+    <!-- log设置 -->
+    <log_config>
+        <!-- log存放路径, -->
+        <logPath></logPath>
+        <!-- 错误日志路径 -->
+        <errLogPath></errLogPath>
+    </log_config>
+
+    <!-- 服务器cache设置 -->
+    <cache_config>
+        <!-- 是否开启cache,开启可以提高运行速度,需占用额外空间 -->
+        <enableCache></enableCache>
+        <!-- 制定cache大小 单位MB-->
+        <cacheSize></cacheSize>
+    </cache_config>
+
+    <ipBlackList>
+        <ip>118.190.23.140</ip>
+    </ipBlackList>
+</configurations>
