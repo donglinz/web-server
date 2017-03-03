@@ -21,6 +21,7 @@ void CacheManager::init(std::string enableCache, std::string cacheSize) {
         cacheIsOpen = false;
         return;
     }
+    cacheIsOpen = true;
     allocatedMemorySize = 0;
     maxMemorySize = std::stoul(cacheSize) * 1024 * 1024;
 

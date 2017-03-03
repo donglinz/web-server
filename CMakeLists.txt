@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(web_server)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 add_definitions(-DBOOST_LOG_DYN_LINK)
 set(SOURCE_FILES
         handler.hpp

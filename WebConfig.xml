@@ -31,7 +31,7 @@
     <!-- 服务器cache设置 -->
     <cache_config>
         <!-- 是否开启cache,开启可以提高运行速度,需占用额外空间 -->
-        <enableCache>off</enableCache>
+        <enableCache>on</enableCache>
         <!-- 制定cache大小 单位MB-->
         <cacheSize>50</cacheSize>
     </cache_config>
