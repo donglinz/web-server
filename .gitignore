@@ -9,7 +9,6 @@ CMakeCache.txt
 server.csr
 server.key
 server.key.old
-
-log/
-php/
 web_server
+php/
+web_server.cbp

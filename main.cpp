@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
     Logger::init(Initializer::config[Configurations::logPath]);
     CacheManager::init(Initializer::config[Configurations::enableCache],
          Initializer::config[Configurations::cacheSize]);
+    Logger::LogNotification("hehe");
     unsigned short port = (unsigned short) std::stoul(Initializer::config[Configurations::port]);
     int num_threads = std::stoi(Initializer::config[Configurations::threadNum]);
     if(Initializer::config[Configurations::httpServer] == ON) {

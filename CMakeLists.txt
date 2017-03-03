@@ -10,8 +10,9 @@ set(SOURCE_FILES
         ServerHttp.hpp
         ServerHttps.hpp
         xml/tinyxml2.h
-        xml/tinyxml2.cpp init/Initializer.cpp init/Initializer.h cache/CacheManager.cpp cache/CacheManager.h log/Logger.cpp log/Logger.h)
-include_directories(xml init log cache)
+        xml/tinyxml2.cpp init/Initializer.cpp init/Initializer.h
+        cache/CacheManager.cpp cache/CacheManager.h Logger/Logger.cpp Logger/Logger.h)
+include_directories(xml init Logger cache)
 link_libraries(-lboost_system -lssl -lcrypto -lpthread
         -lboost_log -lboost_thread -lboost_log_setup)
 add_executable(web_server ${SOURCE_FILES})

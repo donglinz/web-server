@@ -11,9 +11,8 @@
 #define DEFAULT_VALUE_ENABLE_CACHE OFF
 #define DEFAULT_VALUE_CACHE_SIZE "10"
 #define DEFAULT_VALUE_LOG_PATH "log/"
-#define DEFAULT_VALUE_ERR_LOG_PATH "err_log/"
 #define DEFAULT_VALUE_WEB_ROOT_PATH "web/"
-#define DEFAULT_VALUE_NOT_FOUND_PATH ""
+#define DEFAULT_VALUE_NOT_FOUND_FILE ""
 #define DEFAULT_VALUE_PUBLIC_KEY ""
 #define DEFAULT_VALUE_PRIVATE_KEY ""
 #define DEFAULT_VALUE_HTTP_SERVER OFF
@@ -23,15 +22,15 @@
 
 #define STD_OUTPUT_STREAM 1
 #define STD_ERROR_OUTPUT_STREAM 2
+#define EMPTY_STRING ""
 
 namespace Configurations {
     std::string confName[] = {
             "port",
             "cacheSize",
             "logPath",
-            "errLogPath",
             "webRootPath",
-            "notFoundPath",
+            "notFoundFile",
             "publicKey",
             "privateKey",
             "httpServer",
@@ -44,9 +43,8 @@ namespace Configurations {
             {"port", port},
             {"cacheSize", cacheSize},
             {"logPath", logPath},
-            {"errLogPath", errLogPath},
             {"webRootPath", webRootPath},
-            {"notFoundPath", notFoundPath},
+            {"notFoundFile", notFoundFile},
             {"publicKey", publicKey},
             {"privateKey", privateKey},
             {"httpServer", httpServer},
@@ -135,12 +133,10 @@ void Initializer::initConfigMap() {
     config[Configurations::cacheSize] = DEFAULT_VALUE_CACHE_SIZE;
     /* default log path ./log */
     config[Configurations::logPath] = DEFAULT_VALUE_LOG_PATH;
-    /* default error log path */
-    config[Configurations::errLogPath] = DEFAULT_VALUE_ERR_LOG_PATH;
     /* default web root path */
     config[Configurations::webRootPath] = DEFAULT_VALUE_WEB_ROOT_PATH;
     /* default 404 page*/
-    config[Configurations::notFoundPath] = DEFAULT_VALUE_NOT_FOUND_PATH;
+    config[Configurations::notFoundFile] = DEFAULT_VALUE_NOT_FOUND_FILE;
     /* default public key */
     config[Configurations::publicKey] = DEFAULT_VALUE_PUBLIC_KEY;
     /* default private key */
@@ -160,7 +156,6 @@ bool Initializer::checkConfigurations() {
     int port = std::stoi(config[Configurations::port]);
     if(port < 0 || port > UINT16_MAX) {
         std::cerr << "Config error!" << std::endl;
-
         return false;
     }
 
@@ -178,8 +173,8 @@ bool Initializer::checkConfigurations() {
     }
 
     if(config[Configurations::httpsServer] == ON &&
-       (config[Configurations::publicKey] == "" ||
-       config[Configurations::privateKey] == "")) {
+       (config[Configurations::publicKey] == EMPTY_STRING ||
+       config[Configurations::privateKey] == EMPTY_STRING)) {
         std::cerr << "Config error!" << std::endl;
         return false;
     }
@@ -210,7 +205,7 @@ void Initializer::loadConfig(tinyxml2::XMLElement* root) {
 
         /* 检查设置是否合法 */
         if(!config.count(confid)) {
-            std::cerr << "Warring : Invalid configuration." << std::endl;
+            std::cerr << "Warning : Unsupported configuration.\n";
             std::cerr << "<" << content << ">";
             if(root->GetText() != nullptr)
                 std::cerr << root->GetText();

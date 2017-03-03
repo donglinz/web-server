@@ -82,7 +82,13 @@ namespace WebServer{
 
         void no_cache_response(std::ostream & response, std::string & filename);
 
-        //std::string root_directory;
+        void respondFileContent(std::ostream & response, std::string & fileName);
+
+        std::string generateFileName(std::string & path);
+
+        std::string webRootPath;
+
+        std::string notFoundFile;
 
         std::regex re_path_contain_file = std::regex("^([a-zA-Z0-9/._-]+)/([a-zA-Z0-9._-]+)\\.([a-z]+)$");
         //std::regex re_is_index = std::regex("^web/([a-zA-Z0-9._-]+/)?([a-zA-Z0-9./_-]*)index.html$");
@@ -93,6 +99,8 @@ namespace WebServer{
             acceptor(m_io_service, endpoint),
             num_threads(num_threads) {
         init_resource();
+        webRootPath = Initializer::config[Configurations::webRootPath];
+        notFoundFile = Initializer::config[Configurations::notFoundFile];
     }
 
     template<typename socket_type>
@@ -297,48 +305,36 @@ namespace WebServer{
         add_default_resource("^/?(.*)$", "GET",
                              [this](std::ostream& response, WebServer::Request& request) {
                                  // root directory of web resource
-                                 std::string filename = "web";
-
+                                 //std::string filename = "web";
                                  std::string path = request.path_match[0];
-
-                                 std::smatch sub_match;
-                                 filename += path;
-
-                                 if(strstr(filename.c_str(), "/../") != nullptr) {
-                                     not_found(response);
-                                     return;
-                                 }
-
-                                 if(!std::regex_match(filename, re_path_contain_file)) {
-                                     if(filename.back() != '/') {
-                                         filename += "/";
-                                     }
-                                     filename += "index.html";
-                                 }
-
-                                 filename = filename.substr(0, filename.find('?'));
-
-                                 if(CacheManager::getCacheIsOpen()) {
-                                     char* rdbuf = CacheManager::getReadBuffer(filename);
-                                     if(rdbuf == nullptr) {
-                                         not_found(response);
-                                     } else {
-                                         size_t length = strlen(rdbuf);
-                                         response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << rdbuf;
-                                     }
-                                     CacheManager::unlockMutex();
-                                 } else {
-                                     no_cache_response(response, filename);
-                                 }
-
+                                 std::string filename = generateFileName(path);
+                                 respondFileContent(response, filename);
                              });
     }
 
+
+    /* 返回404页面不经过cache */
     template<typename socket_type>
     void ServerBase<socket_type>::not_found(std::ostream & response) {
-        std::string content="404 Not Found";
-        response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+        if(notFoundFile == "") {
+            std::string content="404 Not Found";
+            response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+        } else {
+            std::ifstream ifs;
+            ifs.open(notFoundFile, std::ifstream::binary | std::ifstream::in);
+            if(!ifs) {
+                std::string content="404 Not Found";
+                response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+                return ;
+            }
+            ifs.seekg(0, std::ios::end);
+            size_t length = (size_t) ifs.tellg();
+            ifs.seekg(0, std::ios::beg);
+            response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << ifs.rdbuf();
+            ifs.close();
+        }
     }
+
 
     template <typename socket_type>
     void ServerBase<socket_type>::no_cache_response(std::ostream &response, std::string & filename) {
@@ -360,6 +356,48 @@ namespace WebServer{
             not_found(response);
         }
     }
-}
 
+    template<typename socket_type>
+    void ServerBase<socket_type>::respondFileContent(std::ostream & response, std::string & fileName) {
+        if(CacheManager::getCacheIsOpen()) {
+            char* rdbuf = CacheManager::getReadBuffer(fileName);
+            if(rdbuf == nullptr) {
+                not_found(response);
+            } else {
+                size_t length = strlen(rdbuf);
+                response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << rdbuf;
+            }
+            CacheManager::unlockMutex();
+        } else {
+            no_cache_response(response, fileName);
+        }
+    }
+
+    template<typename socket_type>
+    std::string ServerBase<socket_type>::generateFileName(std::string & path) {
+        /*  防止用/../访问上级目录 */
+        if(strstr(path.c_str(), "/../") != nullptr) {
+            return notFoundFile;
+        }
+
+        std::string filename = webRootPath;
+        if(filename != "/" && filename.back() == '/') filename.pop_back();
+        filename += path;
+
+        if(!std::regex_match(filename, re_path_contain_file)) {
+            if(filename.back() != '/') {
+                filename += "/";
+            }
+            filename += "index.html";
+        }
+
+        filename = filename.substr(0, filename.find('?'));
+        return filename;
+    }
+}
+/*respondFileContent
+ * no_cache_response
+ * not_found
+ *
+ */
 
