@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     Logger::init(Initializer::config[Configurations::logPath]);
     CacheManager::init(Initializer::config[Configurations::enableCache],
          Initializer::config[Configurations::cacheSize]);
-    Logger::LogNotification("hehe");
+
     unsigned short port = (unsigned short) std::stoul(Initializer::config[Configurations::port]);
     int num_threads = std::stoi(Initializer::config[Configurations::threadNum]);
     if(Initializer::config[Configurations::httpServer] == ON) {
@@ -40,6 +40,10 @@ int main(int argc, char *argv[]) {
         WebServer::ServerHttps<HTTPS> server(port, (size_t) num_threads, publicKey, privateKey);
         hd.start_server(server);
     }
+
+
+	return 0;
+}
 
 //    if(strcmp(argv[1], "ServerHttps") == 0) {
 //        std::cout << "https Server" << "\n" <<
@@ -75,5 +79,3 @@ int main(int argc, char *argv[]) {
 //        WebServer::ServerHttp<HTTP> server(std::stoi(argv[2]), std::stoi(argv[3]));
 //        hd.start_server(server);
 //    }
-	return 0;
-}

@@ -1,6 +1,6 @@
 #pragma once
 #include "ServerBase.hpp"
-#include <boost/asio/ssl.hpp>
+
 namespace WebServer {
     typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> HTTPS;
     template<typename socket_type = HTTPS>
@@ -45,9 +45,12 @@ namespace WebServer {
             if(!ec) {
                 (*socket).async_handshake(boost::asio::ssl::stream_base::server,
                 [this, socket](const boost::system::error_code & ec) {
+                    Logger::LogNotification("HTTPS Connection established with remote address " + socketToIP(socket));
                     if(!ec) ServerBase<socket_type>::process_request_and_response(socket);
                 });
             }
         });
     }
+
+
 }

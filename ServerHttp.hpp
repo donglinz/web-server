@@ -1,6 +1,6 @@
 #pragma once
 #include "ServerBase.hpp"
-
+#include <functional>
 namespace WebServer {
 
     // boost::asio::ip::tcp::socket对象，实际上就是一个 HTTP 的 Socket 连接
@@ -38,10 +38,12 @@ namespace WebServer {
         ServerBase<socket_type>::acceptor.async_accept(*socket, [this, socket](const boost::system::error_code& ec) {
             // 立即启动并接受一个连接;
             accept();
-            Logger::LogNotification("Connection established with remote address " + socket->remote_endpoint().address().to_string());
+            Logger::LogNotification("HTTP Connection established with remote address " + socketToIP(socket));
+            std::cout << "HTTP Connection established with remote address " + socketToIP(socket) << std::endl;
             // 如果出现错误
             if(!ec) ServerBase<socket_type>::process_request_and_response(socket);
         });
     }
+
 }
 

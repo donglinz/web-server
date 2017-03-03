@@ -63,10 +63,11 @@ void Logger::setLogPath(std::string logPath) {
 //            keywords::format = "[%TimeStamp%]: %Message%"
 //    );
     if(logPath.back() != '/') logPath += '/';
+
     logging::add_file_log
             (
                     /* file name pattern */
-            //keywords::file_name = logPath + "server_log_%N.log",
+            keywords::file_name = logPath + "server_log_%N.log",
                     /* rotate files every 10 MB */
             keywords::rotation_size = 10 * 1024 * 1024,
                     /* rotate files at midnight */

@@ -10,6 +10,8 @@
 #include "CacheManager.h"
 #include "Initializer.h"
 #include "Logger.h"
+#include <boost/asio/ssl.hpp>
+#include <boost/variant.hpp>
 namespace WebServer{
 
     struct Request {
@@ -23,12 +25,29 @@ namespace WebServer{
         std::smatch path_match;
     };
 
+    class SocketVisitor : public boost::static_visitor<std::string> {
+    public:
+        std::string operator () (std::shared_ptr<boost::asio::ip::tcp::socket> & ptr) const{
+            return ptr->remote_endpoint().address().to_string();
+        }
+        std::string operator () (std::shared_ptr<boost::asio::ssl::stream<boost::asio::ip::tcp::socket> > & ptr) const{
+            return ptr->lowest_layer().remote_endpoint().address().to_string();
+        }
+    };
+    //template<typename socket_type>
+    std::string socketToIP(boost::variant<
+            std::shared_ptr<boost::asio::ip::tcp::socket>,
+            std::shared_ptr<boost::asio::ssl::stream<boost::asio::ip::tcp::socket> >
+    > socket
+    ) {
+        return boost::apply_visitor(SocketVisitor(), socket);
+    }
+
     typedef std::map < std::string,
             std::unordered_map < std::string,
-                    std::function<void(std::ostream&, Request& )>
+                    std::function<void(std::ostream&, Request& , std::string&)>
             >
     > resource_type;
-
 
     // http or https
     template<typename socket_type>
@@ -43,9 +62,15 @@ namespace WebServer{
 
         void stop();
 
-        void add_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&)>);
+        void add_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&, std::string&)>);
 
-        void add_default_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&)>);
+        void add_default_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&, std::string&)>);
+
+
+//        std::string socketToIP(boost::variant<
+//                std::shared_ptr<boost::asio::ip::tcp::socket>,
+//                std::shared_ptr<boost::asio::ssl::stream<boost::asio::ip::tcp::socket> >
+//        > socket);
 
     protected:
         // 所有的资源及默认资源都会在 vector 尾部添加, 并在 start() 中创建
@@ -75,14 +100,17 @@ namespace WebServer{
 
         void respond(std::shared_ptr<socket_type> socket, std::shared_ptr<Request> request) const;
 
+
     private:
+
+
         void init_resource();
 
         void not_found(std::ostream & responce);
 
         void no_cache_response(std::ostream & response, std::string & filename);
 
-        void respondFileContent(std::ostream & response, std::string & fileName);
+        void respondFileContent(std::ostream & response, std::string & fileNamem, std::string & ipAddress);
 
         std::string generateFileName(std::string & path);
 
@@ -237,7 +265,9 @@ namespace WebServer{
 
                     std::shared_ptr<boost::asio::streambuf> write_buffer = std::make_shared<boost::asio::streambuf>();
                     std::ostream response(write_buffer.get());
-                    res_it->second[request->method](response, *request);
+
+                    std::string ipAddress = socketToIP(socket);
+                    res_it->second[request->method](response, *request, ipAddress);
 
                     // 在 lambda 中捕获 write_buffer 使其不会再 async_write 完成前被销毁 (666
                     boost::asio::async_write(*socket, *write_buffer,
@@ -253,12 +283,12 @@ namespace WebServer{
     }
 
     template<typename socket_type>
-    void ServerBase<socket_type>::add_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&)> func) {
+    void ServerBase<socket_type>::add_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&, std::string&)> func) {
         resource[path][method] = func;
     }
 
     template<typename socket_type>
-    void ServerBase<socket_type>::add_default_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&)> func) {
+    void ServerBase<socket_type>::add_default_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&, std::string&)> func) {
         default_resource[path][method] = func;
     }
 
@@ -266,11 +296,11 @@ namespace WebServer{
     void ServerBase<socket_type>::init_resource() {
         // 处理访问 /string 的 POST 请求，返回 POST 的字符串
         add_resource("^/string/?$", "POST",
-                     [](std::ostream& response, WebServer::Request& request) {
+                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress) {
                          // 从 istream 中获取字符串 (*request.content)
                          std::stringstream ss;
                          *request.content >> ss.rdbuf();     // 将请求内容读取到 stringstream
-                         std::string content=ss.str();
+                         std::string content = ss.str();
 
                          // 直接返回请求结果
                          response << "HTTP/1.1 200 OK\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
@@ -278,7 +308,7 @@ namespace WebServer{
 
         // 处理访问 /info 的 GET 请求, 返回请求的信息
         add_resource("^/info/?$", "GET",
-                     [](std::ostream& response, WebServer::Request& request) {
+                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress) {
                          std::stringstream content_stream;
                          content_stream << "<h1>Request:</h1>";
                          content_stream << request.method << " " << request.path << " HTTP/" << request.http_version << "<br>";
@@ -294,7 +324,7 @@ namespace WebServer{
 
         // 处理访问 /match/[字母+数字组成的字符串] 的 GET 请求, 例如执行请求 GET /match/abc123, 将返回 abc123
         add_resource("^/match/([0-9a-zA-Z]+)/?$", "GET",
-                     [](std::ostream& response, WebServer::Request& request) {
+                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress) {
                          std::string number=request.path_match[1];
                          response << "HTTP/1.1 200 OK\r\nContent-Length: " << number.length() << "\r\n\r\n" << number;
                      } );
@@ -303,12 +333,12 @@ namespace WebServer{
         // 将应答 web/ 目录及其子目录中的文件
         // 默认文件: index.html
         add_default_resource("^/?(.*)$", "GET",
-                             [this](std::ostream& response, WebServer::Request& request) {
+                             [this](std::ostream& response, WebServer::Request& request, std::string & ipAddress) {
                                  // root directory of web resource
                                  //std::string filename = "web";
                                  std::string path = request.path_match[0];
                                  std::string filename = generateFileName(path);
-                                 respondFileContent(response, filename);
+                                 respondFileContent(response, filename, ipAddress);
                              });
     }
 
@@ -358,7 +388,9 @@ namespace WebServer{
     }
 
     template<typename socket_type>
-    void ServerBase<socket_type>::respondFileContent(std::ostream & response, std::string & fileName) {
+    void ServerBase<socket_type>::respondFileContent(std::ostream & response, std::string & fileName, std::string & ipAddress) {
+        Logger::LogNotification("Host from " + ipAddress + " Request file:" + fileName);
+        std::cout << "Host from " + ipAddress + " Request file:" + fileName << std::endl;
         if(CacheManager::getCacheIsOpen()) {
             char* rdbuf = CacheManager::getReadBuffer(fileName);
             if(rdbuf == nullptr) {
@@ -394,6 +426,20 @@ namespace WebServer{
         filename = filename.substr(0, filename.find('?'));
         return filename;
     }
+
+//    template<typename socket_type>
+//    std::string ServerBase<socket_type>::socketToIP(boost::asio::ssl::stream<boost::asio::ip::tcp::socket>* socket) {
+//        return socket->lowest_layer().remote_endpoint().address().to_string();
+//
+//
+//    }
+//
+//    template<typename socket_type>
+//    std::string ServerBase<socket_type>::socketToIP(boost::asio::ip::tcp::socket* socket) {
+//        return socket->remote_endpoint().address().to_string();;
+//    }
+
+
 }
 /*respondFileContent
  * no_cache_response
