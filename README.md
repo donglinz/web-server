@@ -32,7 +32,7 @@ make
 
 #Configurations
 
-所有的配置都要写在WebConfig.xml文件内，并放在和编译生成文件相同目录下WebConfig.xml.sample是一份样例配置，请按文件里的注释进行配置。
+所有的配置都要写在WebConfig.xml文件内，并放在和编译生成文件相同目录下。WebConfig.xml.sample是一份样例配置，请按文件里的注释进行配置。
 #Run
 运行'web-server'文件来开始服务器。
 
