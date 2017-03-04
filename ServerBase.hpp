@@ -393,8 +393,9 @@ namespace WebServer{
         std::cout << "Host from " + ipAddress + " Request file:" + fileName << std::endl;
         if(CacheManager::getCacheIsOpen()) {
             char* rdbuf = CacheManager::getReadBuffer(fileName);
+            /* 缓存不足或者找不到页面 */
             if(rdbuf == nullptr) {
-                not_found(response);
+                no_cache_response(response, fileName);
             } else {
                 size_t length = strlen(rdbuf);
                 response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << rdbuf;

@@ -24,7 +24,7 @@ void CacheManager::init(std::string enableCache, std::string cacheSize) {
     cacheIsOpen = true;
     allocatedMemorySize = 0;
     maxMemorySize = std::stoul(cacheSize) * 1024 * 1024;
-
+    maxMemorySize /= 3;
 }
 
 /* 未解决BUG 若有一个文件比整个buffer大　就会返回404
@@ -37,13 +37,10 @@ char *CacheManager::getReadBuffer(std::string & fileName) {
     if(nameToPtr.count(fileName)) {
         /* 修改内存块在LRU队列里的位置 */
         MemBlock *pos = nameToPtr[fileName];
-        memlist.push_front(*pos);
-        memlist.erase(pos);
-        ptrToName.erase(pos);
-        MemBlock *newPos = memlist.head.get();
-        ptrToName[newPos] = fileName;
-        nameToPtr[fileName] = newPos;
-        return newPos->mem.get();
+        memlist.erase(pos, false);
+        memlist.push_front(pos);
+
+        return pos->mem.get();
     }
 
     std::ifstream ifs;
@@ -58,28 +55,30 @@ char *CacheManager::getReadBuffer(std::string & fileName) {
     ifs.seekg(0, std::ios::beg);
     if(length > maxMemorySize) return nullptr;
 
-    MemBlock newMemBlock;
+    MemBlock *newMemBlock;
+    std::cout << allocatedMemorySize << "\n" << maxMemorySize << std::endl;
     if(allocatedMemorySize + length > maxMemorySize) {
         /* 内存不足,执行LRU置换算法 */
         do {
             if(memlist.size() == 0) {
                 return nullptr;
             }
-            MemBlock *ptr = memlist.tail.get();
+            MemBlock *ptr = memlist.tail;
+            allocatedMemorySize -= strlen(ptr->mem.get()) + 1;
             nameToPtr.erase(ptrToName[ptr]);
             ptrToName.erase(ptr);
-            allocatedMemorySize -= strlen(ptr->mem.get()) + 1;
+            memlist.erase(ptr);
         } while(allocatedMemorySize + length > maxMemorySize);
-        newMemBlock.mem = std::make_shared<char>(length);
     }
-    newMemBlock.mem = std::make_shared<char>(length);
-    memset(newMemBlock.mem.get(), 0, sizeof newMemBlock.mem.get());
-    ifs.read(newMemBlock.mem.get(), length - 1);
+    newMemBlock = new MemBlock(length);
+    allocatedMemorySize += length;
+    ifs.read(newMemBlock->mem.get(), length - 1);
+
     memlist.push_front(newMemBlock);
-    ptrToName[memlist.head.get()] = fileName;
-    nameToPtr[fileName] = memlist.head.get();
+    ptrToName[memlist.head] = fileName;
+    nameToPtr[fileName] = memlist.head;
     ifs.close();
-    return newMemBlock.mem.get();
+    return newMemBlock->mem.get();
 }
 
 void CacheManager::unlockMutex() {

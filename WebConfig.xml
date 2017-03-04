@@ -33,7 +33,7 @@
         <!-- 是否开启cache,开启可以提高运行速度,需占用额外空间 -->
         <enableCache>on</enableCache>
         <!-- 制定cache大小 单位MB-->
-        <cacheSize>50</cacheSize>
+        <cacheSize>1</cacheSize>
     </cache_config>
 
     <ipBlackList>
