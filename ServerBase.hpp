@@ -390,15 +390,17 @@ namespace WebServer{
     template<typename socket_type>
     void ServerBase<socket_type>::respondFileContent(std::ostream & response, std::string & fileName, std::string & ipAddress) {
         Logger::LogNotification("Host from " + ipAddress + " Request file:" + fileName);
-        std::cout << "Host from " + ipAddress + " Request file:" + fileName << std::endl;
+        //std::cout << "Host from " + ipAddress + " Request file:" + fileName << std::endl;
         if(CacheManager::getCacheIsOpen()) {
-            char* rdbuf = CacheManager::getReadBuffer(fileName);
+            size_t write_len;
+            char* rdbuf = CacheManager::getReadBuffer(fileName, write_len);
             /* 缓存不足或者找不到页面 */
             if(rdbuf == nullptr) {
                 no_cache_response(response, fileName);
             } else {
-                size_t length = strlen(rdbuf);
-                response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << rdbuf;
+                // response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n" << rdbuf;
+                response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n";
+                response.write(rdbuf, write_len);
             }
             CacheManager::unlockMutex();
         } else {

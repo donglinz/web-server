@@ -2,6 +2,7 @@
 // Created by ubuntu on 17-3-1.
 //
 
+#include <Logger.h>
 #include "CacheManager.h"
 
 #define ON "on"
@@ -27,19 +28,20 @@ void CacheManager::init(std::string enableCache, std::string cacheSize) {
     maxMemorySize /= 3;
 }
 
-/* 未解决BUG 若有一个文件比整个buffer大　就会返回404
- * 将buffer开的大一点可以避免这个问题*/
-char *CacheManager::getReadBuffer(std::string & fileName) {
+
+char *CacheManager::getReadBuffer(std::string & fileName, size_t & ret_length) {
     /* threads concurrency */
     mutex.lock();
-
+std::fstream out;
+    out.open("", std::ofstream::binary | std::ofstream::app);
     /* cache命中 */
+
     if(nameToPtr.count(fileName)) {
         /* 修改内存块在LRU队列里的位置 */
         MemBlock *pos = nameToPtr[fileName];
         memlist.erase(pos, false);
         memlist.push_front(pos);
-
+        ret_length = pos->length;
         return pos->mem.get();
     }
 
@@ -53,14 +55,18 @@ char *CacheManager::getReadBuffer(std::string & fileName) {
     /* 加1是因为末尾有\0 */
     size_t length = (size_t) ifs.tellg() + 1;
     ifs.seekg(0, std::ios::beg);
-    if(length > maxMemorySize) return nullptr;
+    if(length > maxMemorySize) {
+        Logger::LogWarning("Cache size is too small!");
+        return nullptr;
+    }
 
     MemBlock *newMemBlock;
-    std::cout << allocatedMemorySize << "\n" << maxMemorySize << std::endl;
+    //std::cout << allocatedMemorySize << "\n" << maxMemorySize << std::endl;
     if(allocatedMemorySize + length > maxMemorySize) {
         /* 内存不足,执行LRU置换算法 */
         do {
             if(memlist.size() == 0) {
+                Logger::LogWarning("Cache size is too small!");
                 return nullptr;
             }
             MemBlock *ptr = memlist.tail;
@@ -70,7 +76,13 @@ char *CacheManager::getReadBuffer(std::string & fileName) {
             memlist.erase(ptr);
         } while(allocatedMemorySize + length > maxMemorySize);
     }
-    newMemBlock = new MemBlock(length);
+    try {
+        newMemBlock = new MemBlock(length);
+    } catch( ... ) {
+        Logger::LogCritical("Fatal error, cannot allocating more memory!");
+        exit(15);
+    }
+
     allocatedMemorySize += length;
     ifs.read(newMemBlock->mem.get(), length - 1);
 
@@ -78,6 +90,8 @@ char *CacheManager::getReadBuffer(std::string & fileName) {
     ptrToName[memlist.head] = fileName;
     nameToPtr[fileName] = memlist.head;
     ifs.close();
+
+    ret_length = length - 1;
     return newMemBlock->mem.get();
 }
 

@@ -39,7 +39,7 @@ namespace WebServer {
             // 立即启动并接受一个连接;
             accept();
             Logger::LogNotification("HTTP Connection established with remote address " + socketToIP(socket));
-            std::cout << "HTTP Connection established with remote address " + socketToIP(socket) << std::endl;
+            //std::cout << "HTTP Connection established with remote address " + socketToIP(socket) << std::endl;
             // 如果出现错误
             if(!ec) ServerBase<socket_type>::process_request_and_response(socket);
         });

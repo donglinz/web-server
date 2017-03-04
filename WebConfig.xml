@@ -7,13 +7,13 @@
         <!-- 运行线程数量 -->
         <threadNum>4</threadNum>
         <!-- web根目录,即网站所在目录,必须存在web/index.html-->
-        <webRootPath>/home/ubuntu/Desktop/guidang/</webRootPath>
+        <webRootPath>/home/ubuntu/Desktop/btts_4_rq/</webRootPath>
         <!-- 是否开启HTTP服务器 开启填写on,关闭填写off-->
         <httpServer>on</httpServer>
         <!-- 是否开启HTTPS服务器 开启填写on,关闭填写off-->
         <httpsServer>off</httpsServer>
         <!-- 是否用指定404页面,不指定留空 -->
-        <notFoundFile>/home/ubuntu/Desktop/guidang/404.html</notFoundFile>
+        <notFoundFile></notFoundFile>
         <!-- 是否启用IP黑名单 开启填写on,关闭填写off-->
         <ipBlackList>off</ipBlackList>
         <!-- 开启HTTPS服务器的话必须填写 -->
@@ -32,8 +32,8 @@
     <cache_config>
         <!-- 是否开启cache,开启可以提高运行速度,需占用额外空间 -->
         <enableCache>on</enableCache>
-        <!-- 制定cache大小 单位MB-->
-        <cacheSize>1</cacheSize>
+        <!-- 制定cache大小 单位MB 填写整数-->
+        <cacheSize>10</cacheSize>
     </cache_config>
 
     <ipBlackList>
