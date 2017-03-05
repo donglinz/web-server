@@ -3,7 +3,8 @@
 服务器由Web服务模块，日志模块，Cache模块，XML配置模块构成
 支持HTTP，HTTPS协议。HTTPS协议用asio::ssl::context对象对socket数据流进行加密， 通过async_handshake方法进行SSL握手。
 支持静态HTML页面，GET/POST方法，可以方便的进行横向扩展以支持新的请求方法。
-服务器Cache利用LRU算法进行页面替换，减少磁盘IO次数，Cache大小可以在XML配置 文件中指定。
+服务器Cache利用LRU算法进行页面替换，减少磁盘IO次数，Cache大小可以在XML配置 文件中指定。   
+Log系统基于Boost Log，封装了Boost Log的部分功能。支持日志轮转，设置最大日志占用空间，定时轮转，过滤器等功能。
 #OS
 建议ubuntu14及以上<br>
 
@@ -42,7 +43,7 @@ Run as a HTTP server:<br>
 ```
 nohup ./web_server &
 ```
-If you want run server at port 1~1023, please run as a superuser or add sudo to you command.<br>
+
 
 #DEMO
 [http://118.190.23.140:1234/index.html](http://118.190.23.140:1234/index.html)<br>
