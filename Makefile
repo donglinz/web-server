@@ -123,6 +123,60 @@ web_server/fast:
 	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/build
 .PHONY : web_server/fast
 
+CacheSystem/CacheManager.o: CacheSystem/CacheManager.cpp.o
+
+.PHONY : CacheSystem/CacheManager.o
+
+# target to build an object file
+CacheSystem/CacheManager.cpp.o:
+	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/CacheSystem/CacheManager.cpp.o
+.PHONY : CacheSystem/CacheManager.cpp.o
+
+CacheSystem/CacheManager.i: CacheSystem/CacheManager.cpp.i
+
+.PHONY : CacheSystem/CacheManager.i
+
+# target to preprocess a source file
+CacheSystem/CacheManager.cpp.i:
+	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/CacheSystem/CacheManager.cpp.i
+.PHONY : CacheSystem/CacheManager.cpp.i
+
+CacheSystem/CacheManager.s: CacheSystem/CacheManager.cpp.s
+
+.PHONY : CacheSystem/CacheManager.s
+
+# target to generate assembly for a file
+CacheSystem/CacheManager.cpp.s:
+	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/CacheSystem/CacheManager.cpp.s
+.PHONY : CacheSystem/CacheManager.cpp.s
+
+Init/Initializer.o: Init/Initializer.cpp.o
+
+.PHONY : Init/Initializer.o
+
+# target to build an object file
+Init/Initializer.cpp.o:
+	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/Init/Initializer.cpp.o
+.PHONY : Init/Initializer.cpp.o
+
+Init/Initializer.i: Init/Initializer.cpp.i
+
+.PHONY : Init/Initializer.i
+
+# target to preprocess a source file
+Init/Initializer.cpp.i:
+	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/Init/Initializer.cpp.i
+.PHONY : Init/Initializer.cpp.i
+
+Init/Initializer.s: Init/Initializer.cpp.s
+
+.PHONY : Init/Initializer.s
+
+# target to generate assembly for a file
+Init/Initializer.cpp.s:
+	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/Init/Initializer.cpp.s
+.PHONY : Init/Initializer.cpp.s
+
 Logger/Logger.o: Logger/Logger.cpp.o
 
 .PHONY : Logger/Logger.o
@@ -150,59 +204,32 @@ Logger/Logger.cpp.s:
 	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/Logger/Logger.cpp.s
 .PHONY : Logger/Logger.cpp.s
 
-cache/CacheManager.o: cache/CacheManager.cpp.o
+XMLReader/tinyxml2.o: XMLReader/tinyxml2.cpp.o
 
-.PHONY : cache/CacheManager.o
-
-# target to build an object file
-cache/CacheManager.cpp.o:
-	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/cache/CacheManager.cpp.o
-.PHONY : cache/CacheManager.cpp.o
-
-cache/CacheManager.i: cache/CacheManager.cpp.i
-
-.PHONY : cache/CacheManager.i
-
-# target to preprocess a source file
-cache/CacheManager.cpp.i:
-	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/cache/CacheManager.cpp.i
-.PHONY : cache/CacheManager.cpp.i
-
-cache/CacheManager.s: cache/CacheManager.cpp.s
-
-.PHONY : cache/CacheManager.s
-
-# target to generate assembly for a file
-cache/CacheManager.cpp.s:
-	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/cache/CacheManager.cpp.s
-.PHONY : cache/CacheManager.cpp.s
-
-init/Initializer.o: init/Initializer.cpp.o
-
-.PHONY : init/Initializer.o
+.PHONY : XMLReader/tinyxml2.o
 
 # target to build an object file
-init/Initializer.cpp.o:
-	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/init/Initializer.cpp.o
-.PHONY : init/Initializer.cpp.o
+XMLReader/tinyxml2.cpp.o:
+	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/XMLReader/tinyxml2.cpp.o
+.PHONY : XMLReader/tinyxml2.cpp.o
 
-init/Initializer.i: init/Initializer.cpp.i
+XMLReader/tinyxml2.i: XMLReader/tinyxml2.cpp.i
 
-.PHONY : init/Initializer.i
+.PHONY : XMLReader/tinyxml2.i
 
 # target to preprocess a source file
-init/Initializer.cpp.i:
-	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/init/Initializer.cpp.i
-.PHONY : init/Initializer.cpp.i
+XMLReader/tinyxml2.cpp.i:
+	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/XMLReader/tinyxml2.cpp.i
+.PHONY : XMLReader/tinyxml2.cpp.i
 
-init/Initializer.s: init/Initializer.cpp.s
+XMLReader/tinyxml2.s: XMLReader/tinyxml2.cpp.s
 
-.PHONY : init/Initializer.s
+.PHONY : XMLReader/tinyxml2.s
 
 # target to generate assembly for a file
-init/Initializer.cpp.s:
-	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/init/Initializer.cpp.s
-.PHONY : init/Initializer.cpp.s
+XMLReader/tinyxml2.cpp.s:
+	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/XMLReader/tinyxml2.cpp.s
+.PHONY : XMLReader/tinyxml2.cpp.s
 
 main.o: main.cpp.o
 
@@ -231,33 +258,6 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-xml/tinyxml2.o: xml/tinyxml2.cpp.o
-
-.PHONY : xml/tinyxml2.o
-
-# target to build an object file
-xml/tinyxml2.cpp.o:
-	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/xml/tinyxml2.cpp.o
-.PHONY : xml/tinyxml2.cpp.o
-
-xml/tinyxml2.i: xml/tinyxml2.cpp.i
-
-.PHONY : xml/tinyxml2.i
-
-# target to preprocess a source file
-xml/tinyxml2.cpp.i:
-	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/xml/tinyxml2.cpp.i
-.PHONY : xml/tinyxml2.cpp.i
-
-xml/tinyxml2.s: xml/tinyxml2.cpp.s
-
-.PHONY : xml/tinyxml2.s
-
-# target to generate assembly for a file
-xml/tinyxml2.cpp.s:
-	$(MAKE) -f CMakeFiles/web_server.dir/build.make CMakeFiles/web_server.dir/xml/tinyxml2.cpp.s
-.PHONY : xml/tinyxml2.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -267,21 +267,21 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... web_server"
+	@echo "... CacheSystem/CacheManager.o"
+	@echo "... CacheSystem/CacheManager.i"
+	@echo "... CacheSystem/CacheManager.s"
+	@echo "... Init/Initializer.o"
+	@echo "... Init/Initializer.i"
+	@echo "... Init/Initializer.s"
 	@echo "... Logger/Logger.o"
 	@echo "... Logger/Logger.i"
 	@echo "... Logger/Logger.s"
-	@echo "... cache/CacheManager.o"
-	@echo "... cache/CacheManager.i"
-	@echo "... cache/CacheManager.s"
-	@echo "... init/Initializer.o"
-	@echo "... init/Initializer.i"
-	@echo "... init/Initializer.s"
+	@echo "... XMLReader/tinyxml2.o"
+	@echo "... XMLReader/tinyxml2.i"
+	@echo "... XMLReader/tinyxml2.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... xml/tinyxml2.o"
-	@echo "... xml/tinyxml2.i"
-	@echo "... xml/tinyxml2.s"
 .PHONY : help
 
 
