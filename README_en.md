@@ -11,11 +11,11 @@ Multithreading Web Server Based on Boost Asio.
 
 # OS
 
-Ubuntu 14.04 and higher
+Ubuntu 14.04 or higher
 
 # Complier
 
-G++5 and higher
+G++5 or higher
 # Library dependencies   
 
 All the lib below should be added to CMakeLists.txt
