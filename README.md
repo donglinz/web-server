@@ -1,5 +1,7 @@
 <h1>WebServer based on c++ and boost asio</h1>
 
+[English version](https://github.com/Iridesscent/web-server/blob/master/README_en.md)
+
 基于Boost Asio的多线程Web服务器。
 服务器由Web服务模块，日志模块，Cache模块，XML配置模块构成
 支持HTTP，HTTPS协议。HTTPS协议用asio::ssl::context对象对socket数据流进行加密。
