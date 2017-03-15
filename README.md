@@ -1,4 +1,4 @@
-<h1>WebServer based on c++ and boost asio</h1>
+<h1>WebServer based on Boost asio</h1>
 
 [English version](https://github.com/Iridesscent/web-server/blob/master/README_en.md)
 
