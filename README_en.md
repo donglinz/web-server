@@ -1,9 +1,9 @@
-# WebServer based on c++ and boost asio
+# Multithreading Web Server Based on Boost Asio. 
 
 # Description
 Multithreading Web Server Based on Boost Asio.   
 
->  The server is composed of Web service module, log module, cache module and XML configuration module.
+> The server is composed of Web service module, log module, cache module and XML configuration module.
 > Support HTTP, HTTPS protocol. In HTTPS protocol data stream was encrypted by asio::ssl::context object.
 > Support static HTML page, GET/POST method. Server can be easily extended horizontally to support the new request method.
 > The server cache uses the LRU algorithm for page replacement to reduce the frequency of IO operation, cache size is configurable. 
@@ -42,7 +42,7 @@ make
 
 # Configurations
 
-All the configuration is written in the file 'WebConfig.xml' and placed in the same directory as the build file. WebConfig.xml.sample is a sample configuration, please follow the comments to complete your config.
+All the configuration is written in the file 'WebConfig.xml' and placed in the same directory as the build file. 'WebConfig.xml.sample' is a sample configuration, please follow the comments to complete your config.
 
 IP black list  will be supported soon.
 
