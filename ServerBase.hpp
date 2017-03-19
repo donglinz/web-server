@@ -7,7 +7,7 @@
 #include <fstream>
 #include <memory>
 #include <algorithm>
-#include "CacheManager.h"
+#include "IOSystem.h"
 #include "Initializer.h"
 #include "Logger.h"
 #include <boost/asio/ssl.hpp>
@@ -159,9 +159,10 @@ namespace WebServer{
 
         m_io_service.run();
 
-        for (auto &t : threads) {
-            t.join();
-        }
+        std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
+//        for (auto &t : threads) {
+//            t.join();
+//        }
     }
 
     template<typename socket_type>
@@ -393,16 +394,15 @@ namespace WebServer{
         //std::cout << "Host from " + ipAddress + " Request file:" + fileName << std::endl;
         if(CacheManager::getCacheIsOpen()) {
             size_t write_len;
-            char* rdbuf = CacheManager::getReadBuffer(fileName, write_len);
+            std::string rdbuf = IOSystem::getReadBuffer(fileName, write_len);
             /* 缓存不足或者找不到页面 */
-            if(rdbuf == nullptr) {
+            if(write_len == 0) {
                 no_cache_response(response, fileName);
             } else {
                 // response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n" << rdbuf;
                 response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n";
-                response.write(rdbuf, write_len);
+                response.write(rdbuf.c_str(), write_len);
             }
-            CacheManager::unlockMutex();
         } else {
             no_cache_response(response, fileName);
         }

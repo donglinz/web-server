@@ -32,11 +32,27 @@
     <cache_config>
         <!-- 是否开启cache,开启可以提高运行速度,需占用额外空间 -->
         <enableCache>on</enableCache>
-        <!-- 制定cache大小 单位MB 填写整数-->
+        <!-- on表示用redis做cache,off表示用服务器自带cache,填写on的话必须要配置redisConfig里的项目 -->
+        <useRedisCache>on</useRedisCache>
+        <!-- 指定cache大小 单位MB 填写整数-->
         <cacheSize>10</cacheSize>
     </cache_config>
 
     <ipBlackList>
         <ip>118.190.23.140</ip>
     </ipBlackList>
+
+    <!-- 被用作缓存的redis数据库会被执行flushall, 请不要在相应数据库里存储信息 -->
+    <redisConfig>
+        <!-- redis数据库ip -->
+        <redisHost></redisHost>
+        <!-- redis运行端口 -->
+        <redisPort></redisPort>
+        <!-- 登录密码,无密码留空 -->
+        <redisPass></redisPass>
+        <!-- 用几号redis数据库 -->
+        <redisDataBaseId></redisDataBaseId>
+        <!-- cache有效时间 -->
+        <redisTTL></redisTTL>
+    </redisConfig>
 </configurations>

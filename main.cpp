@@ -40,7 +40,5 @@ int main(int argc, char *argv[]) {
         WebServer::ServerHttps<HTTPS> server(port, (size_t) num_threads, publicKey, privateKey);
         hd.start_server(server);
     }
-
-
 	return 0;
 }

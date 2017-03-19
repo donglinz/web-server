@@ -4,25 +4,17 @@
 
 #ifndef WEB_SERVER_CACHEMANAGER_H
 #define WEB_SERVER_CACHEMANAGER_H
-#include <string>
-#include <cstring>
-#include <memory>
-#include <iostream>
-#include <unordered_map>
-#include <map>
-#include <list>
-#include <mutex>
-#include <fstream>
-class CacheManager {
+#include "BasicCacheManager.h"
+
+class CacheManager : public BasicCacheManager{
 public:
-    static void init(std::string enableCache, std::string cacheSize);
-    static char* getReadBuffer(std::string & fileName, size_t & ret_length);
-    static void unlockMutex();
-    static bool getCacheIsOpen();
+    virtual void init(std::string enableCache, std::string cacheSize) override;
+    virtual std::string getReadBuffer(std::string & fileName, size_t & ret_length) override;
+    virtual bool getCacheIsOpen() override;
 private:
-    static bool cacheIsOpen;
-    static unsigned long maxMemorySize;
-    static unsigned long allocatedMemorySize;
+    bool cacheIsOpen;
+    unsigned long maxMemorySize;
+    unsigned long allocatedMemorySize;
 
     struct MemBlock {
         std::shared_ptr<char> mem;
@@ -104,11 +96,10 @@ private:
 
     /* 内存页面置换采用LRU算法 memList为指向页面内存的指针 */
 
-    static std::unordered_map<std::string, MemBlock *> nameToPtr;
-    static std::map<MemBlock *, std::string> ptrToName;
-    static LinkedList memlist;
-    static std::mutex mutex;
-
+    std::unordered_map<std::string, MemBlock *> nameToPtr;
+    std::map<MemBlock *, std::string> ptrToName;
+    LinkedList memlist;
+    std::mutex mutex;
 };
 
 

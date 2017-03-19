@@ -8,14 +8,14 @@
 #define ON "on"
 #define OFF "off"
 
-bool CacheManager::cacheIsOpen = false;
-unsigned long CacheManager::maxMemorySize = 0;
-unsigned long CacheManager::allocatedMemorySize = 0;
-
-std::unordered_map<std::string, CacheManager::MemBlock *> CacheManager::nameToPtr;
-std::map<CacheManager::MemBlock *, std::string> CacheManager::ptrToName;
-CacheManager::LinkedList CacheManager::memlist = CacheManager::LinkedList();
-std::mutex CacheManager::mutex;
+//bool CacheManager::cacheIsOpen = false;
+//unsigned long CacheManager::maxMemorySize = 0;
+//unsigned long CacheManager::allocatedMemorySize = 0;
+//
+//std::unordered_map<std::string, CacheManager::MemBlock *> CacheManager::nameToPtr;
+//std::map<CacheManager::MemBlock *, std::string> CacheManager::ptrToName;
+//CacheManager::LinkedList CacheManager::memlist = CacheManager::LinkedList();
+//std::mutex CacheManager::mutex;
 
 void CacheManager::init(std::string enableCache, std::string cacheSize) {
     if(enableCache == OFF) {
@@ -25,15 +25,14 @@ void CacheManager::init(std::string enableCache, std::string cacheSize) {
     cacheIsOpen = true;
     allocatedMemorySize = 0;
     maxMemorySize = std::stoul(cacheSize) * 1024 * 1024;
-    maxMemorySize /= 3;
 }
 
 
-char *CacheManager::getReadBuffer(std::string & fileName, size_t & ret_length) {
+std::string CacheManager::getReadBuffer(std::string & fileName, size_t & ret_length) {
     /* threads concurrency */
-    mutex.lock();
+    std::unique_lock<std::mutex> lck(mutex);
     /* cache命中 */
-
+    ret_length = 0;
     if(nameToPtr.count(fileName)) {
         /* 修改内存块在LRU队列里的位置 */
         MemBlock *pos = nameToPtr[fileName];
@@ -47,7 +46,7 @@ char *CacheManager::getReadBuffer(std::string & fileName, size_t & ret_length) {
     ifs.open(fileName, std::ifstream::in | std::ifstream::binary);
     /* 404 Not Found */
 
-    if(!ifs) return nullptr;
+    if(!ifs) return std::string();
     ifs.seekg(0, std::ios::end);
 
     /* 加1是因为末尾有\0 */
@@ -55,7 +54,7 @@ char *CacheManager::getReadBuffer(std::string & fileName, size_t & ret_length) {
     ifs.seekg(0, std::ios::beg);
     if(length > maxMemorySize) {
         Logger::LogWarning("Cache size is too small!");
-        return nullptr;
+        return std::string();
     }
 
     MemBlock *newMemBlock;
@@ -65,7 +64,7 @@ char *CacheManager::getReadBuffer(std::string & fileName, size_t & ret_length) {
         do {
             if(memlist.size() == 0) {
                 Logger::LogWarning("Cache size is too small!");
-                return nullptr;
+                return std::string();
             }
             MemBlock *ptr = memlist.tail;
             allocatedMemorySize -= strlen(ptr->mem.get()) + 1;
@@ -92,11 +91,6 @@ char *CacheManager::getReadBuffer(std::string & fileName, size_t & ret_length) {
     ret_length = length - 1;
     return newMemBlock->mem.get();
 }
-
-void CacheManager::unlockMutex() {
-    mutex.unlock();
-}
-
 bool CacheManager::getCacheIsOpen() {
     return cacheIsOpen;
 }
