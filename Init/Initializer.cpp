@@ -25,7 +25,7 @@
 #define DEFAULT_VALUE_REDIS_PASS ""
 #define DEFAULT_VALUE_REDIS_DATABASE_ID "0"
 #define DEFAULT_VALUE_REDIS_TTL "5"
-
+#define DEFAULT_VALUE_REDIS_CONNECTION_POOL_SIZE "10"
 #define STD_OUTPUT_STREAM 1
 #define STD_ERROR_OUTPUT_STREAM 2
 #define EMPTY_STRING ""
@@ -43,13 +43,13 @@ namespace Configurations {
             "httpsServer",
             "enableCache",
             "ipBlackList",
+            "threadNum",
             "useRedisCache",
             "redisHost",
             "redisPort",
             "redisPass",
             "redisDataBaseId",
-            "redisTTL",
-            "threadNum"
+            "redisTTL"
     };
     std::unordered_map<std::string, Configuration> confId = {
             {"port", port},

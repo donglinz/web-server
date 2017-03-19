@@ -31,8 +31,8 @@ void CacheManager::init(std::string enableCache, std::string cacheSize) {
 std::string CacheManager::getReadBuffer(std::string & fileName, size_t & ret_length) {
     /* threads concurrency */
     std::unique_lock<std::mutex> lck(mutex);
-    /* cache命中 */
     ret_length = 0;
+    /* cache命中 */
     if(nameToPtr.count(fileName)) {
         /* 修改内存块在LRU队列里的位置 */
         MemBlock *pos = nameToPtr[fileName];
@@ -93,5 +93,11 @@ std::string CacheManager::getReadBuffer(std::string & fileName, size_t & ret_len
 }
 bool CacheManager::getCacheIsOpen() {
     return cacheIsOpen;
+}
+
+CacheManager::~CacheManager() {
+    while(memlist.head != nullptr) {
+        memlist.pop_back();
+    }
 }
 

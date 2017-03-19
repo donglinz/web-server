@@ -5,12 +5,13 @@
 #ifndef WEB_SERVER_CACHEMANAGER_H
 #define WEB_SERVER_CACHEMANAGER_H
 #include "BasicCacheManager.h"
-
+#include "DiskReader.h"
 class CacheManager : public BasicCacheManager{
 public:
-    virtual void init(std::string enableCache, std::string cacheSize) override;
+    void init(std::string enableCache, std::string cacheSize);
     virtual std::string getReadBuffer(std::string & fileName, size_t & ret_length) override;
     virtual bool getCacheIsOpen() override;
+    ~CacheManager();
 private:
     bool cacheIsOpen;
     unsigned long maxMemorySize;

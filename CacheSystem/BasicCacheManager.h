@@ -16,7 +16,6 @@
 #include <fstream>
 
 class BasicCacheManager {
-    virtual void init(std::string enableCache, std::string cacheSize) = 0;
     virtual std::string getReadBuffer(std::string & fileName, size_t & ret_length) = 0;
     virtual bool getCacheIsOpen() = 0;
 };

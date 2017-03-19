@@ -7,11 +7,13 @@
 #include <fstream>
 #include <memory>
 #include <algorithm>
-#include "IOSystem.h"
-#include "Initializer.h"
-#include "Logger.h"
 #include <boost/asio/ssl.hpp>
 #include <boost/variant.hpp>
+#include "Initializer.h"
+#include "Logger.h"
+#include "IOSystem.h"
+
+
 namespace WebServer{
 
     struct Request {
@@ -172,6 +174,7 @@ namespace WebServer{
     template<typename socket_type>
     void WebServer::ServerBase<socket_type>::accept()
     {
+
     }
 
     template<typename socket_type>
@@ -392,20 +395,23 @@ namespace WebServer{
     void ServerBase<socket_type>::respondFileContent(std::ostream & response, std::string & fileName, std::string & ipAddress) {
         Logger::LogNotification("Host from " + ipAddress + " Request file:" + fileName);
         //std::cout << "Host from " + ipAddress + " Request file:" + fileName << std::endl;
-        if(CacheManager::getCacheIsOpen()) {
-            size_t write_len;
-            std::string rdbuf = IOSystem::getReadBuffer(fileName, write_len);
-            /* 缓存不足或者找不到页面 */
-            if(write_len == 0) {
-                no_cache_response(response, fileName);
-            } else {
-                // response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n" << rdbuf;
-                response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n";
-                response.write(rdbuf.c_str(), write_len);
-            }
-        } else {
-            no_cache_response(response, fileName);
-        }
+        size_t write_len;
+        std::string rdbuf = IOSystem::getReadBuffer(fileName, write_len);
+        response.write(rdbuf.c_str(), write_len);
+//        if(CacheManager::getCacheIsOpen()) {
+//            size_t write_len;
+//            std::string rdbuf = IOSystem::getReadBuffer(fileName, write_len);
+//            /* 缓存不足或者找不到页面 */
+//            if(write_len == 0) {
+//                no_cache_response(response, fileName);
+//            } else {
+//                // response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n" << rdbuf;
+//                response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n";
+//                response.write(rdbuf.c_str(), write_len);
+//            }
+//        } else {
+//            no_cache_response(response, fileName);
+//        }
     }
 
     template<typename socket_type>

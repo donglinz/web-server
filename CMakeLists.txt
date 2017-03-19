@@ -11,7 +11,11 @@ set(SOURCE_FILES
         ServerHttps.hpp
         XMLReader/tinyxml2.h
         XMLReader/tinyxml2.cpp Init/Initializer.cpp Init/Initializer.h
-        CacheSystem/CacheManager.cpp CacheSystem/CacheManager.h Logger/Logger.cpp Logger/Logger.h CacheSystem/IOSystem.cpp CacheSystem/IOSystem.h CacheSystem/BasicCacheManager.cpp CacheSystem/BasicCacheManager.h CacheSystem/RedisCacheManager.cpp CacheSystem/RedisCacheManager.h)
+        CacheSystem/CacheManager.cpp CacheSystem/CacheManager.h
+        Logger/Logger.cpp Logger/Logger.h
+        CacheSystem/IOSystem.cpp CacheSystem/IOSystem.h
+        CacheSystem/BasicCacheManager.cpp CacheSystem/BasicCacheManager.h
+        CacheSystem/RedisCacheManager.cpp CacheSystem/RedisCacheManager.h CacheSystem/DiskReader.cpp CacheSystem/DiskReader.h)
 link_directories(hiredis)
 link_libraries(libhiredis.a)
 include_directories(XMLReader Init Logger CacheSystem hiredis)

@@ -5,15 +5,34 @@
 #ifndef WEB_SERVER_REDISCACHEMANAGER_H
 #define WEB_SERVER_REDISCACHEMANAGER_H
 
+#include <algorithm>
+#include <vector>
 #include "hiredis.h"
 #include "BasicCacheManager.h"
+#include "DiskReader.h"
+#include "Logger.h"
+
 class RedisCacheManager : public BasicCacheManager{
 public:
-    virtual void init(std::string enableCache, std::string cacheSize) override;
+    void init(std::string redisHost,
+              std::string redisPort,
+              std::string redisPass,
+              std::string redisDataBaseId,
+              std::string redisTTL);
     virtual std::string getReadBuffer(std::string & fileName, size_t & ret_length) override;
     virtual bool getCacheIsOpen() override;
-
 private:
+    std::string host;
+    std::string port;
+    std::string pass;
+    std::string dataBaseId;
+    std::string TTL;
+    redisContext *connectHandler;
+
+    void connect();
+    //bool isConnected(int id);
+    std::string getErrorMsg(std::string msg);
+    redisReply * redisCommandWapper(std::string command);
 };
 
 

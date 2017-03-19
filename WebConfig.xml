@@ -54,5 +54,7 @@
         <redisDataBaseId></redisDataBaseId>
         <!-- cache有效时间 -->
         <redisTTL></redisTTL>
+        <!-- redis连接池连接个数 -->
+        <redisConnectionPoolSize></redisConnectionPoolSize>
     </redisConfig>
 </configurations>
