@@ -6,8 +6,16 @@
 #define WEB_SERVER_DISKREADER_H
 
 #include <string>
+#include <fstream>
+#include "DiskReader.h"
 class DiskReader {
-    static std::string readFromDisk(std::string fileName);
+public:
+    static void readFromDisk(const std::string & fileName, std::ostream& response);
+    static void init(std::string _notFoundFile);
+    static void notFoundPage(std::ostream & ostream);
+    static void cacheResponse(std::ostream & response, const char * cache, size_t len);
+private:
+    static std::string notFoundFile;
 };
 
 

@@ -23,7 +23,8 @@ typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> HTTPS;
 int main(int argc, char *argv[]) {
     Initializer::init();
     Logger::init(Initializer::config[Configurations::logPath]);
-    IOSystem::init(Initializer::config[Configurations::enableCache],
+    IOSystem::init(Initializer::config[Configurations::notFoundFile],
+                   Initializer::config[Configurations::enableCache],
                    Initializer::config[Configurations::cacheSize],
                    Initializer::config[Configurations::useRedisCache],
                    Initializer::config[Configurations::redisHost],

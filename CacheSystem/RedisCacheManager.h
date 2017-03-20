@@ -14,33 +14,31 @@
 #include <thread>
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include "BasicCacheManager.h"
 #include "DiskReader.h"
 #include "Logger.h"
 #include "cpp_redis"
 
-class RedisCacheManager : public BasicCacheManager{
+class RedisCacheManager {
 public:
-    void init(std::string redisHost,
+    static void init(std::string redisHost,
               std::string redisPort,
               std::string redisPass,
               std::string redisDataBaseId,
               std::string redisTTL);
-    virtual std::string getReadBuffer(std::string & fileName, size_t & ret_length) override;
-    void asyncResponse(std::ostream response, std::string fileName, std::function<void()> callback);
-    virtual bool getCacheIsOpen() override;
+    static std::string getReadBuffer(std::string & fileName, size_t & ret_length) ;
+    static void asyncResponse(std::ostream response, std::string fileName, std::function<void()> callback);
+    static bool getCacheIsOpen();
 private:
-    std::string host;
-    std::string port;
-    std::string pass;
-    std::string dataBaseId;
-    std::string TTL;
-    cpp_redis::redis_client client;
-    boost::asio::io_service io_service;
-    std::function<void(cpp_redis::redis_client&)> disConnectCallback;
+    static std::string host;
+    static std::string port;
+    static std::string pass;
+    static std::string dataBaseId;
+    static std::string TTL;
+    static cpp_redis::redis_client client;
+    static boost::asio::io_service io_service;
+    static std::function<void(cpp_redis::redis_client&)> disConnectCallback;
 
-    void setTimer(boost::posix_time::microsec timeInterval);
-
+    static void setTimer(boost::posix_time::microsec timeInterval);
 };
 
 

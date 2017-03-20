@@ -4,6 +4,14 @@
 
 #include "RedisCacheManager.h"
 
+std::string RedisCacheManager::host;
+std::string RedisCacheManager::port;
+std::string RedisCacheManager::pass;
+std::string RedisCacheManager::dataBaseId;
+std::string RedisCacheManager::TTL;
+cpp_redis::redis_client RedisCacheManager::client;
+boost::asio::io_service RedisCacheManager::io_service;
+std::function<void(cpp_redis::redis_client&)> RedisCacheManager::disConnectCallback;
 
 std::string RedisCacheManager::getReadBuffer(std::string &fileName, size_t &ret_length) {
     return std::__cxx11::string();
@@ -23,7 +31,7 @@ void RedisCacheManager::init(std::string redisHost,
     pass = redisPass;
     dataBaseId = redisDataBaseId;
     TTL = redisTTL;
-    disConnectCallback = [&disConnectCallback](cpp_redis::redis_client & client)->void {
+    disConnectCallback = [](cpp_redis::redis_client & client)->void {
         Logger::LogError("Redis Client DisConnected from host " +
                                  host + ":" + port + " Reconnecting...");
         try {
@@ -44,7 +52,8 @@ void RedisCacheManager::init(std::string redisHost,
 void RedisCacheManager::setTimer(boost::posix_time::microsec timeInterval) {
     std::shared_ptr<boost::asio::deadline_timer> timerPtr =
             std::make_shared<boost::asio::deadline_timer>(io_service, timeInterval);
-    timerPtr->async_wait([timerPtr, &io_service, &client](const boost::system::error_code & ec)->void {
+
+    timerPtr->async_wait([timeInterval](const boost::system::error_code & ec)->void {
         client.commit();
         setTimer(timeInterval);
     });

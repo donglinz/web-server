@@ -47,7 +47,7 @@ namespace WebServer{
 
     typedef std::map < std::string,
             std::unordered_map < std::string,
-                    std::function<void(std::ostream&, Request& , std::string&)>
+                    std::function<void(std::ostream&, Request& , std::string&, std::function<void()>) >
             >
     > resource_type;
 
@@ -64,9 +64,13 @@ namespace WebServer{
 
         void stop();
 
-        void add_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&, std::string&)>);
+        void add_resource(const std::string & path,
+                          const std::string & method,
+                          std::function<void(std::ostream&, Request&, std::string&, std::function<void()>)>);
 
-        void add_default_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&, std::string&)>);
+        void add_default_resource(const std::string & path,
+                                  const std::string & method,
+                                  std::function<void(std::ostream&, Request&, std::string&, std::function<void()>)>);
 
 
 //        std::string socketToIP(boost::variant<
@@ -271,15 +275,34 @@ namespace WebServer{
                     std::ostream response(write_buffer.get());
 
                     std::string ipAddress = socketToIP(socket);
-                    res_it->second[request->method](response, *request, ipAddress);
-
-                    // 在 lambda 中捕获 write_buffer 使其不会再 async_write 完成前被销毁
-                    boost::asio::async_write(*socket, *write_buffer,
-                                             [this, socket, request, write_buffer](const boost::system::error_code& ec, size_t bytes_transferred) {
-                                                 // HTTP 持久连接(HTTP 1.1), 递归调用
-                                                 if(!ec && stod(request->http_version)>1.05)
-                                                     process_request_and_response(socket);
-                                             });
+                    if(IOSystem::getCacheType() == IOSystem::redisCache) {
+                        res_it->second[request->method](response, *request, ipAddress,
+                        [this, socket, write_buffer, request]()->void {
+                            boost::asio::async_write(*socket, *write_buffer,
+                                                     [this, socket, request, write_buffer](const boost::system::error_code& ec, size_t bytes_transferred) {
+                                                         // HTTP 持久连接(HTTP 1.1), 递归调用
+                                                         if(!ec && stod(request->http_version)>1.05)
+                                                             process_request_and_response(socket);
+                                                     });
+                        });
+                    } else {
+                        res_it->second[request->method](response, *request, ipAddress, nullptr);
+                        boost::asio::async_write(*socket, *write_buffer,
+                                                 [this, socket, request, write_buffer](const boost::system::error_code& ec, size_t bytes_transferred) {
+                                                     // HTTP 持久连接(HTTP 1.1), 递归调用
+                                                     if(!ec && stod(request->http_version)>1.05)
+                                                         process_request_and_response(socket);
+                                                 });
+                    }
+//                    res_it->second[request->method](response, *request, ipAddress, nullptr);
+//
+//                    // 在 lambda 中捕获 write_buffer 使其不会再 async_write 完成前被销毁
+//                    boost::asio::async_write(*socket, *write_buffer,
+//                                             [this, socket, request, write_buffer](const boost::system::error_code& ec, size_t bytes_transferred) {
+//                                                 // HTTP 持久连接(HTTP 1.1), 递归调用
+//                                                 if(!ec && stod(request->http_version)>1.05)
+//                                                     process_request_and_response(socket);
+//                                             });
                     return;
                 }
             }
@@ -287,12 +310,16 @@ namespace WebServer{
     }
 
     template<typename socket_type>
-    void ServerBase<socket_type>::add_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&, std::string&)> func) {
+    void ServerBase<socket_type>::add_resource(const std::string & path,
+                                               const std::string & method,
+                                               std::function<void(std::ostream&, Request&, std::string&, std::function<void()>)> func) {
         resource[path][method] = func;
     }
 
     template<typename socket_type>
-    void ServerBase<socket_type>::add_default_resource(const std::string & path, const std::string & method, std::function<void(std::ostream&, Request&, std::string&)> func) {
+    void ServerBase<socket_type>::add_default_resource(const std::string & path,
+                                                       const std::string & method,
+                                                       std::function<void(std::ostream&, Request&, std::string&, std::function<void()>)> func) {
         default_resource[path][method] = func;
     }
 
@@ -300,7 +327,7 @@ namespace WebServer{
     void ServerBase<socket_type>::init_resource() {
         // 处理访问 /string 的 POST 请求，返回 POST 的字符串
         add_resource("^/string/?$", "POST",
-                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress) {
+                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress, std::function<void()> callback) {
                          // 从 istream 中获取字符串 (*request.content)
                          std::stringstream ss;
                          *request.content >> ss.rdbuf();     // 将请求内容读取到 stringstream
@@ -312,7 +339,7 @@ namespace WebServer{
 
         // 处理访问 /info 的 GET 请求, 返回请求的信息
         add_resource("^/info/?$", "GET",
-                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress) {
+                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress, std::function<void()> callback) {
                          std::stringstream content_stream;
                          content_stream << "<h1>Request:</h1>";
                          content_stream << request.method << " " << request.path << " HTTP/" << request.http_version << "<br>";
@@ -328,7 +355,7 @@ namespace WebServer{
 
         // 处理访问 /match/[字母+数字组成的字符串] 的 GET 请求, 例如执行请求 GET /match/abc123, 将返回 abc123
         add_resource("^/match/([0-9a-zA-Z]+)/?$", "GET",
-                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress) {
+                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress, std::function<void()> callback) {
                          std::string number=request.path_match[1];
                          response << "HTTP/1.1 200 OK\r\nContent-Length: " << number.length() << "\r\n\r\n" << number;
                      } );
@@ -337,7 +364,7 @@ namespace WebServer{
         // 将应答 web/ 目录及其子目录中的文件
         // 默认文件: index.html
         add_default_resource("^/?(.*)$", "GET",
-                             [this](std::ostream& response, WebServer::Request& request, std::string & ipAddress) {
+                             [this](std::ostream& response, WebServer::Request& request, std::string & ipAddress, std::function<void()>) {
                                  // root directory of web resource
                                  //std::string filename = "web";
                                  std::string path = request.path_match[0];
