@@ -16,9 +16,12 @@ set(SOURCE_FILES
         CacheSystem/IOSystem.cpp CacheSystem/IOSystem.h
         CacheSystem/BasicCacheManager.cpp CacheSystem/BasicCacheManager.h
         CacheSystem/RedisCacheManager.cpp CacheSystem/RedisCacheManager.h CacheSystem/DiskReader.cpp CacheSystem/DiskReader.h)
-link_directories(hiredis)
-link_libraries(libhiredis.a)
-include_directories(XMLReader Init Logger CacheSystem hiredis)
-link_libraries(-lboost_system -lssl -lcrypto -lpthread
-        -lboost_log -lboost_thread -lboost_log_setup)
+
+include_directories(XMLReader Init Logger CacheSystem
+        cpp_redis cpp_redis/builders cpp_redis/network)
+link_directories(lib)
+link_libraries(-lboost_system
+        -lssl -lcrypto -lpthread
+        -lboost_log -lboost_thread
+        -lboost_log_setup libcpp_redis.a libtacopie.a)
 add_executable(web_server ${SOURCE_FILES})

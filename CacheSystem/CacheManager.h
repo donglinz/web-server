@@ -16,7 +16,6 @@ private:
     bool cacheIsOpen;
     unsigned long maxMemorySize;
     unsigned long allocatedMemorySize;
-
     struct MemBlock {
         std::shared_ptr<char> mem;
         MemBlock *pre, *next;

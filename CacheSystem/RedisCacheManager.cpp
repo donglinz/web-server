@@ -23,41 +23,34 @@ void RedisCacheManager::init(std::string redisHost,
     pass = redisPass;
     dataBaseId = redisDataBaseId;
     TTL = redisTTL;
-    connect();
-}
-
-void RedisCacheManager::connect() {
-    asyncConnectionHandler = redisAsyncConnect(host, std::stoi(port));
-    auto base = event_base_new();
-    redisLibeventAttach(c, base);
-    std::thread(event_base_dispatch, base).detach();
-    if(c->err) {
-        printf("Err: %s\n", c->errstr);
+    disConnectCallback = [&disConnectCallback](cpp_redis::redis_client & client)->void {
+        Logger::LogError("Redis Client DisConnected from host " +
+                                 host + ":" + port + " Reconnecting...");
+        try {
+            client.connect(host, std::stoul(port), disConnectCallback);
+        } catch( ... ) {
+            Logger::LogError("Redis client error, cannot connect to host " +
+            host + ":" + port);
+        }
+    };
+    try {
+        client.connect(host, std::stoul(port), disConnectCallback);
+    } catch( ... ) {
+        Logger::LogError("Redis client error, cannot connect to host " +
+                         host + ":" + port);
     }
+}
 
-    redisAsyncSetConnectCallback(c, [](const redisAsyncContext* conn, int status)->void {
-        if(status == REDIS_OK) {
-            std::cout << "conn ok" << std::endl;
-        } else if(status == REDIS_ERR) std::cout << "conn error" << std::endl;
-    });
-    redisAsyncSetDisconnectCallback(c, [](const redisAsyncContext* conn, int status)->void {
-        if(status == REDIS_OK) {
-            std::cout << "disconn ok" << std::endl;
-        } else if(status == REDIS_ERR) std::cout << "disconn error" << std::endl;
+void RedisCacheManager::setTimer(boost::posix_time::microsec timeInterval) {
+    std::shared_ptr<boost::asio::deadline_timer> timerPtr =
+            std::make_shared<boost::asio::deadline_timer>(io_service, timeInterval);
+    timerPtr->async_wait([timerPtr, &io_service, &client](const boost::system::error_code & ec)->void {
+        client.commit();
+        setTimer(timeInterval);
     });
 }
 
-//bool RedisCacheManager::isConnected(int id) {
-//    if(connectHandler == nullptr || connectHandler->err) return false;
-//    auto reply = static_cast<redisReply *>(redisCommand(connectHandler, "ping");
-//    return !(reply->type != REDIS_REPLY_STATUS || strncmp(reply->str, "PONG", (size_t) std::min(reply->len, 4)));
-//}
+void RedisCacheManager::asyncResponse(std::ostream response, std::string fileName, std::function<void()> callback) {
 
-std::string RedisCacheManager::getErrorMsg(std::string msg) {
-    return "Redis Error! " + msg;
 }
 
-redisReply *RedisCacheManager::redisCommandWapper(std::string command) {
-
-    return nullptr;
-}

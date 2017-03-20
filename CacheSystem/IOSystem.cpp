@@ -18,3 +18,16 @@ void IOSystem::init(std::string enableCache,
                     std::string redisTTL) {
 
 }
+
+IOSystem::CacheType IOSystem::getCacheType() {
+    return redisCache;
+}
+
+void IOSystem::syncResponse(std::ostream &os, std::string &fileName, std::string &ipAddress) {
+
+}
+
+void IOSystem::asyncResponse(std::ostream &os, std::string &fileName, std::string &ipAddress,
+                             std::function<void()> callback) {
+
+}
