@@ -23,11 +23,28 @@ void RedisCacheManager::init(std::string redisHost,
     pass = redisPass;
     dataBaseId = redisDataBaseId;
     TTL = redisTTL;
-
+    connect();
 }
 
 void RedisCacheManager::connect() {
+    asyncConnectionHandler = redisAsyncConnect(host, std::stoi(port));
+    auto base = event_base_new();
+    redisLibeventAttach(c, base);
+    std::thread(event_base_dispatch, base).detach();
+    if(c->err) {
+        printf("Err: %s\n", c->errstr);
+    }
 
+    redisAsyncSetConnectCallback(c, [](const redisAsyncContext* conn, int status)->void {
+        if(status == REDIS_OK) {
+            std::cout << "conn ok" << std::endl;
+        } else if(status == REDIS_ERR) std::cout << "conn error" << std::endl;
+    });
+    redisAsyncSetDisconnectCallback(c, [](const redisAsyncContext* conn, int status)->void {
+        if(status == REDIS_OK) {
+            std::cout << "disconn ok" << std::endl;
+        } else if(status == REDIS_ERR) std::cout << "disconn error" << std::endl;
+    });
 }
 
 //bool RedisCacheManager::isConnected(int id) {

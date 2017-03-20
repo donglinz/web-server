@@ -7,6 +7,9 @@
 
 #include <algorithm>
 #include <vector>
+#include <thread>
+#include "adapters/libevent.h"
+#include "async.h"
 #include "hiredis.h"
 #include "BasicCacheManager.h"
 #include "DiskReader.h"
@@ -27,7 +30,7 @@ private:
     std::string pass;
     std::string dataBaseId;
     std::string TTL;
-    redisContext *connectHandler;
+    redisAsyncContext *asyncConnectionHandler;
 
     void connect();
     //bool isConnected(int id);

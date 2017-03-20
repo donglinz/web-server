@@ -273,7 +273,7 @@ namespace WebServer{
                     std::string ipAddress = socketToIP(socket);
                     res_it->second[request->method](response, *request, ipAddress);
 
-                    // 在 lambda 中捕获 write_buffer 使其不会再 async_write 完成前被销毁 (666
+                    // 在 lambda 中捕获 write_buffer 使其不会再 async_write 完成前被销毁
                     boost::asio::async_write(*socket, *write_buffer,
                                              [this, socket, request, write_buffer](const boost::system::error_code& ec, size_t bytes_transferred) {
                                                  // HTTP 持久连接(HTTP 1.1), 递归调用
