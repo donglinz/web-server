@@ -58,3 +58,19 @@ void DiskReader::cacheResponse(std::ostream &response, const char *cache, size_t
     response << "HTTP/1.1 200 OK\r\nContent-Length: " << len << "\r\n\r\n";
     response.write(cache, len);
 }
+
+std::string DiskReader::getStrFromDisk(const std::string &fileName) {
+    std::string fileMsg;
+    std::ifstream ifs;
+    if(!ifs) return "";
+    ifs.open(fileName, std::ifstream::in | std::ifstream::binary);
+    ifs.seekg(0, std::ios::end);
+
+    /* 加1是因为末尾有\0 */
+    size_t length = (size_t) ifs.tellg();
+    ifs.seekg(0, std::ios::beg);
+
+    fileMsg.resize(length);
+    ifs.read(const_cast<char *>(fileMsg.c_str()), length);
+    return fileMsg;
+}

@@ -14,7 +14,6 @@ set(SOURCE_FILES
         CacheSystem/CacheManager.cpp CacheSystem/CacheManager.h
         Logger/Logger.cpp Logger/Logger.h
         CacheSystem/IOSystem.cpp CacheSystem/IOSystem.h
-        CacheSystem/BasicCacheManager.cpp CacheSystem/BasicCacheManager.h
         CacheSystem/RedisCacheManager.cpp CacheSystem/RedisCacheManager.h CacheSystem/DiskReader.cpp CacheSystem/DiskReader.h)
 
 include_directories(XMLReader Init Logger CacheSystem

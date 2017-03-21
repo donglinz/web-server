@@ -7,7 +7,10 @@
 
 
 /* 设置异步redis驱动多长时间刷新一次缓存 默认300ms刷新一次 */
+
+#ifndef REDIS_HANDLER_FLUSH_INTERVAL_IN_MICRISECONDS
 #define REDIS_HANDLER_FLUSH_INTERVAL_IN_MICRISECONDS 300
+#endif
 
 #include <algorithm>
 #include <vector>
@@ -20,24 +23,27 @@
 
 class RedisCacheManager {
 public:
-    static void init(std::string redisHost,
-              std::string redisPort,
-              std::string redisPass,
-              std::string redisDataBaseId,
-              std::string redisTTL);
+    static void init(std::string redisOn,
+                     std::string redisHost,
+                     std::string redisPort,
+                     std::string redisPass,
+                     std::string redisDataBaseId,
+                     std::string redisTTL);
     static std::string getReadBuffer(std::string & fileName, size_t & ret_length) ;
-    static void asyncResponse(std::ostream response, std::string fileName, std::function<void()> callback);
+    static void asyncResponse(std::shared_ptr<std::ostream> response, std::shared_ptr<std::string> fileName, std::function<void()> callback);
     static bool getCacheIsOpen();
+    static void stop();
 private:
+    static bool redisIsOn;
     static std::string host;
     static std::string port;
     static std::string pass;
     static std::string dataBaseId;
-    static std::string TTL;
+    static int TTL;
     static cpp_redis::redis_client client;
     static boost::asio::io_service io_service;
     static std::function<void(cpp_redis::redis_client&)> disConnectCallback;
-
+    static void respokseOK(std::ostream& response, const std::string& content);
     static void setTimer(boost::posix_time::microsec timeInterval);
 };
 

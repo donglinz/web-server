@@ -20,7 +20,11 @@ typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> HTTPS;
 #include "handler.hpp"
 #define ON "on"
 #define OFF "off"
+void onExit();
+void onSig(int sig);
+void regSig();
 int main(int argc, char *argv[]) {
+    regSig();
     Initializer::init();
     Logger::init(Initializer::config[Configurations::logPath]);
     IOSystem::init(Initializer::config[Configurations::notFoundFile],
@@ -47,4 +51,22 @@ int main(int argc, char *argv[]) {
         hd.start_server(server);
     }
 	return 0;
+}
+
+void onExit() {
+    RedisCacheManager::stop();
+}
+
+void onSig(int sig) {
+    RedisCacheManager::stop();
+}
+
+void regSig() {
+    atexit(onExit);
+    signal(SIGABRT, onSig);
+    signal(SIGFPE, onSig);
+    signal(SIGILL, onSig);
+    signal(SIGINT, onSig);
+    signal(SIGSEGV, onSig);
+    signal(SIGTERM, onSig);
 }

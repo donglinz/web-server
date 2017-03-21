@@ -47,7 +47,10 @@ namespace WebServer{
 
     typedef std::map < std::string,
             std::unordered_map < std::string,
-                    std::function<void(std::ostream&, Request& , std::string&, std::function<void()>) >
+                    std::function<void(std::shared_ptr<std::ostream>,
+                                       std::shared_ptr<Request>,
+                                       std::shared_ptr<std::string>,
+                                       std::function<void()>) >
             >
     > resource_type;
 
@@ -66,11 +69,17 @@ namespace WebServer{
 
         void add_resource(const std::string & path,
                           const std::string & method,
-                          std::function<void(std::ostream&, Request&, std::string&, std::function<void()>)>);
+                          std::function<void(std::shared_ptr<std::ostream>,
+                                             std::shared_ptr<Request>,
+                                             std::shared_ptr<std::string>,
+                                             std::function<void()>) >);
 
         void add_default_resource(const std::string & path,
                                   const std::string & method,
-                                  std::function<void(std::ostream&, Request&, std::string&, std::function<void()>)>);
+                                  std::function<void(std::shared_ptr<std::ostream>,
+                                                     std::shared_ptr<Request>,
+                                                     std::shared_ptr<std::string>,
+                                                     std::function<void()>) >);
 
 
 //        std::string socketToIP(boost::variant<
@@ -112,13 +121,13 @@ namespace WebServer{
 
         void init_resource();
 
-        void not_found(std::ostream & responce);
+//        void not_found(std::ostream & responce);
+//
+//        void no_cache_response(std::ostream & response, std::string & filename);
+//
+//        void respondFileContent(std::ostream & response, std::string & fileNamem, std::string & ipAddress);
 
-        void no_cache_response(std::ostream & response, std::string & filename);
-
-        void respondFileContent(std::ostream & response, std::string & fileNamem, std::string & ipAddress);
-
-        std::string generateFileName(std::string & path);
+        std::string generateFileName(const std::string & path);
 
         std::string webRootPath;
 
@@ -126,6 +135,7 @@ namespace WebServer{
 
         std::regex re_path_contain_file = std::regex("^([a-zA-Z0-9/._-]+)/([a-zA-Z0-9._-]+)\\.([a-z]+)$");
         //std::regex re_is_index = std::regex("^web/([a-zA-Z0-9._-]+/)?([a-zA-Z0-9./_-]*)index.html$");
+
     };
     template<typename socket_type>
     WebServer::ServerBase<socket_type>::ServerBase(unsigned short port, size_t num_threads) :
@@ -229,15 +239,17 @@ namespace WebServer{
         std::shared_ptr<Request> request = std::make_shared<Request>(WebServer::Request());
         // 使用正则表达式对请求报头进行解析，通过下面的正则表达式
         // 可以解析出请求方法(GET/POST)、请求路径以及 HTTP 版本
-        std::regex regex("^([^ ]*) ([^ ]*) HTTP/([^ ]*)$");
+        static std::regex regex_header = std::regex("^([^ ]*) ([^ ]*) HTTP/([^ ]*)$");
+        static std::regex regex_body = std::regex("^([^:]*): ?(.*)$");
+        static std::smatch sub_match;
+        //std::regex regex("^([^ ]*) ([^ ]*) HTTP/([^ ]*)$");
 
-        std::smatch sub_match;
         //从第一行中解析请求方法、路径和 HTTP 版本
         std::string line;
 
         std::getline(stream, line);
         line.pop_back();
-        if (std::regex_match(line, sub_match, regex)) {
+        if (std::regex_match(line, sub_match, regex_header)) {
             request->method = sub_match[1];
             request->path = sub_match[2];
             request->http_version = sub_match[3];
@@ -245,11 +257,11 @@ namespace WebServer{
                 request->path = (request->path).substr(0, (request->path).find('?'));
             }
             bool matched = false;
-            regex = "^([^:]*): ?(.*)$";
+            //regex = "^([^:]*): ?(.*)$";
             do {
                 getline(stream, line);
                 line.pop_back();
-                matched = std::regex_match(line, sub_match, regex);
+                matched = std::regex_match(line, sub_match, regex_body);
                 if (matched) {
                     request->header[sub_match[1]] = sub_match[2];
                 }
@@ -272,11 +284,11 @@ namespace WebServer{
 
 
                     std::shared_ptr<boost::asio::streambuf> write_buffer = std::make_shared<boost::asio::streambuf>();
-                    std::ostream response(write_buffer.get());
+                    std::shared_ptr<std::ostream> response = std::make_shared<std::ostream>(write_buffer.get());
+                    std::shared_ptr<std::string> ipAddress = std::make_shared<std::string>(socketToIP(socket));
 
-                    std::string ipAddress = socketToIP(socket);
                     if(IOSystem::getCacheType() == IOSystem::redisCache) {
-                        res_it->second[request->method](response, *request, ipAddress,
+                        res_it->second[request->method](response, request, ipAddress,
                         [this, socket, write_buffer, request]()->void {
                             boost::asio::async_write(*socket, *write_buffer,
                                                      [this, socket, request, write_buffer](const boost::system::error_code& ec, size_t bytes_transferred) {
@@ -286,7 +298,7 @@ namespace WebServer{
                                                      });
                         });
                     } else {
-                        res_it->second[request->method](response, *request, ipAddress, nullptr);
+                        res_it->second[request->method](response, request, ipAddress, nullptr);
                         boost::asio::async_write(*socket, *write_buffer,
                                                  [this, socket, request, write_buffer](const boost::system::error_code& ec, size_t bytes_transferred) {
                                                      // HTTP 持久连接(HTTP 1.1), 递归调用
@@ -312,14 +324,20 @@ namespace WebServer{
     template<typename socket_type>
     void ServerBase<socket_type>::add_resource(const std::string & path,
                                                const std::string & method,
-                                               std::function<void(std::ostream&, Request&, std::string&, std::function<void()>)> func) {
+                                               std::function<void(std::shared_ptr<std::ostream>,
+                                                                  std::shared_ptr<Request> ,
+                                                                  std::shared_ptr<std::string>,
+                                                                  std::function<void()>) > func) {
         resource[path][method] = func;
     }
 
     template<typename socket_type>
     void ServerBase<socket_type>::add_default_resource(const std::string & path,
                                                        const std::string & method,
-                                                       std::function<void(std::ostream&, Request&, std::string&, std::function<void()>)> func) {
+                                                       std::function<void(std::shared_ptr<std::ostream>,
+                                                                          std::shared_ptr<Request>,
+                                                                          std::shared_ptr<std::string>,
+                                                                          std::function<void()>) > func) {
         default_resource[path][method] = func;
     }
 
@@ -327,122 +345,147 @@ namespace WebServer{
     void ServerBase<socket_type>::init_resource() {
         // 处理访问 /string 的 POST 请求，返回 POST 的字符串
         add_resource("^/string/?$", "POST",
-                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress, std::function<void()> callback) {
+                     [](std::shared_ptr<std::ostream> response,
+                        std::shared_ptr<WebServer::Request> request,
+                        std::shared_ptr<std::string> ipAddress,
+                        std::function<void()> callback) {
+
                          // 从 istream 中获取字符串 (*request.content)
                          std::stringstream ss;
-                         *request.content >> ss.rdbuf();     // 将请求内容读取到 stringstream
-                         std::string content = ss.str();
 
+                         *request->content >> ss.rdbuf();     // 将请求内容读取到 stringstream
+                         std::string content = ss.str();
                          // 直接返回请求结果
-                         response << "HTTP/1.1 200 OK\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+                         *response << "HTTP/1.1 200 OK\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+                         if(callback) callback();
                      });
 
         // 处理访问 /info 的 GET 请求, 返回请求的信息
         add_resource("^/info/?$", "GET",
-                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress, std::function<void()> callback) {
+                     [](std::shared_ptr<std::ostream> response,
+                        std::shared_ptr<WebServer::Request> request,
+                        std::shared_ptr<std::string> ipAddress,
+                        std::function<void()> callback) {
                          std::stringstream content_stream;
                          content_stream << "<h1>Request:</h1>";
-                         content_stream << request.method << " " << request.path << " HTTP/" << request.http_version << "<br>";
-                         for(auto& header: request.header) {
+                         content_stream << request->method << " " << request->path << " HTTP/" << request->http_version << "<br>";
+                         for(auto& header: request->header) {
                              content_stream << header.first << ": " << header.second << "<br>";
                          }
 
                          // 获得 content_stream 的长度(使用 content.tellp() 获得)
                          content_stream.seekp(0, std::ios::end);
 
-                         response <<  "HTTP/1.1 200 OK\r\nContent-Length: " << content_stream.tellp() << "\r\n\r\n" << content_stream.rdbuf();
+                         *response <<  "HTTP/1.1 200 OK\r\nContent-Length: " << content_stream.tellp() << "\r\n\r\n" << content_stream.rdbuf();
+
+                         if(callback) callback();
                      });
 
         // 处理访问 /match/[字母+数字组成的字符串] 的 GET 请求, 例如执行请求 GET /match/abc123, 将返回 abc123
         add_resource("^/match/([0-9a-zA-Z]+)/?$", "GET",
-                     [](std::ostream& response, WebServer::Request& request, std::string & ipAddress, std::function<void()> callback) {
-                         std::string number=request.path_match[1];
-                         response << "HTTP/1.1 200 OK\r\nContent-Length: " << number.length() << "\r\n\r\n" << number;
+                     [](std::shared_ptr<std::ostream> response,
+                        std::shared_ptr<WebServer::Request> request,
+                        std::shared_ptr<std::string> ipAddress,
+                        std::function<void()> callback) {
+                         std::string number=request->path_match[1];
+                         *response << "HTTP/1.1 200 OK\r\nContent-Length: " << number.length() << "\r\n\r\n" << number;
+                         if(callback) callback();
                      } );
 
         // 处理默认 GET 请求, 如果没有其他匹配成功，则这个匿名函数会被调用
         // 将应答 web/ 目录及其子目录中的文件
         // 默认文件: index.html
         add_default_resource("^/?(.*)$", "GET",
-                             [this](std::ostream& response, WebServer::Request& request, std::string & ipAddress, std::function<void()>) {
-                                 // root directory of web resource
-                                 //std::string filename = "web";
-                                 std::string path = request.path_match[0];
-                                 std::string filename = generateFileName(path);
-                                 respondFileContent(response, filename, ipAddress);
+                             [this](std::shared_ptr<std::ostream> response,
+                                    std::shared_ptr<WebServer::Request> request,
+                                    std::shared_ptr<std::string> ipAddress,
+                                    std::function<void()> callback) {
+                                 if(callback) {
+                                     IOSystem::asyncResponse(response,
+                                                             std::make_shared<std::string>(generateFileName(request->path_match[0])),
+                                                             ipAddress,
+                                                             callback);
+                                 } else {
+                                     // root directory of web resource
+                                     //std::string filename = "web";
+                                     std::string path = request->path_match[0];
+                                     std::string filename = generateFileName(path);
+                                     IOSystem::syncResponse(*response, filename, *ipAddress);
+                                     //respondFileContent(response, filename, ipAddress);
+                                 }
                              });
     }
 
 
-    /* 返回404页面不经过cache */
-    template<typename socket_type>
-    void ServerBase<socket_type>::not_found(std::ostream & response) {
-        if(notFoundFile == "") {
-            std::string content="404 Not Found";
-            response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
-        } else {
-            std::ifstream ifs;
-            ifs.open(notFoundFile, std::ifstream::binary | std::ifstream::in);
-            if(!ifs) {
-                std::string content="404 Not Found";
-                response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
-                return ;
-            }
-            ifs.seekg(0, std::ios::end);
-            size_t length = (size_t) ifs.tellg();
-            ifs.seekg(0, std::ios::beg);
-            response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << ifs.rdbuf();
-            ifs.close();
-        }
-    }
-
-
-    template <typename socket_type>
-    void ServerBase<socket_type>::no_cache_response(std::ostream &response, std::string & filename) {
-        std::ifstream ifs;
-        ifs.open(filename, std::ifstream::in | std::ifstream::binary);
-
-        if(ifs) {
-            ifs.seekg(0, std::ios::end);
-            size_t length = (size_t) ifs.tellg();
-
-            ifs.seekg(0, std::ios::beg);
-
-            // 文件内容拷贝到 response-stream 中，不应该用于大型文件
-            response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << ifs.rdbuf();
-
-            ifs.close();
-        } else {
-            // 文件不存在时，返回无法打开文件
-            not_found(response);
-        }
-    }
-
-    template<typename socket_type>
-    void ServerBase<socket_type>::respondFileContent(std::ostream & response, std::string & fileName, std::string & ipAddress) {
-        Logger::LogNotification("Host from " + ipAddress + " Request file:" + fileName);
-        //std::cout << "Host from " + ipAddress + " Request file:" + fileName << std::endl;
-        size_t write_len;
-        std::string rdbuf = IOSystem::getReadBuffer(fileName, write_len);
-        response.write(rdbuf.c_str(), write_len);
-//        if(CacheManager::getCacheIsOpen()) {
-//            size_t write_len;
-//            std::string rdbuf = IOSystem::getReadBuffer(fileName, write_len);
-//            /* 缓存不足或者找不到页面 */
-//            if(write_len == 0) {
-//                no_cache_response(response, fileName);
-//            } else {
-//                // response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n" << rdbuf;
-//                response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n";
-//                response.write(rdbuf.c_str(), write_len);
-//            }
+//    /* 返回404页面不经过cache */
+//    template<typename socket_type>
+//    void ServerBase<socket_type>::not_found(std::ostream & response) {
+//        if(notFoundFile == "") {
+//            std::string content="404 Not Found";
+//            response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
 //        } else {
-//            no_cache_response(response, fileName);
+//            std::ifstream ifs;
+//            ifs.open(notFoundFile, std::ifstream::binary | std::ifstream::in);
+//            if(!ifs) {
+//                std::string content="404 Not Found";
+//                response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << content.length() << "\r\n\r\n" << content;
+//                return ;
+//            }
+//            ifs.seekg(0, std::ios::end);
+//            size_t length = (size_t) ifs.tellg();
+//            ifs.seekg(0, std::ios::beg);
+//            response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << ifs.rdbuf();
+//            ifs.close();
 //        }
-    }
+//    }
+//
+//
+//    template <typename socket_type>
+//    void ServerBase<socket_type>::no_cache_response(std::ostream &response, std::string & filename) {
+//        std::ifstream ifs;
+//        ifs.open(filename, std::ifstream::in | std::ifstream::binary);
+//
+//        if(ifs) {
+//            ifs.seekg(0, std::ios::end);
+//            size_t length = (size_t) ifs.tellg();
+//
+//            ifs.seekg(0, std::ios::beg);
+//
+//            // 文件内容拷贝到 response-stream 中，不应该用于大型文件
+//            response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n" << ifs.rdbuf();
+//
+//            ifs.close();
+//        } else {
+//            // 文件不存在时，返回无法打开文件
+//            not_found(response);
+//        }
+//    }
+//
+//    template<typename socket_type>
+//    void ServerBase<socket_type>::respondFileContent(std::ostream & response, std::string & fileName, std::string & ipAddress) {
+//        Logger::LogNotification("Host from " + ipAddress + " Request file:" + fileName);
+//        //std::cout << "Host from " + ipAddress + " Request file:" + fileName << std::endl;
+//        size_t write_len;
+//        std::string rdbuf = IOSystem::getReadBuffer(fileName, write_len);
+//        response.write(rdbuf.c_str(), write_len);
+////        if(CacheManager::getCacheIsOpen()) {
+////            size_t write_len;
+////            std::string rdbuf = IOSystem::getReadBuffer(fileName, write_len);
+////            /* 缓存不足或者找不到页面 */
+////            if(write_len == 0) {
+////                no_cache_response(response, fileName);
+////            } else {
+////                // response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n" << rdbuf;
+////                response << "HTTP/1.1 200 OK\r\nContent-Length: " << write_len << "\r\n\r\n";
+////                response.write(rdbuf.c_str(), write_len);
+////            }
+////        } else {
+////            no_cache_response(response, fileName);
+////        }
+//    }
 
     template<typename socket_type>
-    std::string ServerBase<socket_type>::generateFileName(std::string & path) {
+    std::string ServerBase<socket_type>::generateFileName(const std::string & path) {
         /*  防止用/../访问上级目录 */
         if(strstr(path.c_str(), "/../") != nullptr) {
             return notFoundFile;
