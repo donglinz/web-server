@@ -10,13 +10,10 @@ std::string RedisCacheManager::pass;
 std::string RedisCacheManager::dataBaseId;
 int RedisCacheManager::TTL;
 bool RedisCacheManager::redisIsOn;
-cpp_redis::redis_client RedisCacheManager::client;
+
 boost::asio::io_service RedisCacheManager::io_service;
 std::function<void(cpp_redis::redis_client&)> RedisCacheManager::disConnectCallback;
-
-std::string RedisCacheManager::getReadBuffer(std::string &fileName, size_t &ret_length) {
-    return std::__cxx11::string();
-}
+cpp_redis::redis_client RedisCacheManager::client;
 
 bool RedisCacheManager::getCacheIsOpen() {
     return redisIsOn;
@@ -82,7 +79,7 @@ void RedisCacheManager::asyncResponse(std::shared_ptr<std::ostream> response,
                                       std::shared_ptr<std::string> fileName,
                                       std::function<void()> callback) {
     client.get(*fileName, [callback, response, fileName](cpp_redis::reply & reply)->void {
-        if(reply.is_null() || !reply.is_string()) {
+        if(reply.is_null() || reply.is_error() || !reply.is_string()) {
             std::string fileMsg = DiskReader::getStrFromDisk(*fileName);
             if(fileMsg.empty()) DiskReader::notFoundPage(*response);
             else {

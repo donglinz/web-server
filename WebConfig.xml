@@ -45,16 +45,14 @@
     <!-- 被用作缓存的redis数据库会被执行flushall, 请不要在相应数据库里存储信息 -->
     <redisConfig>
         <!-- redis数据库ip -->
-        <redisHost></redisHost>
+        <redisHost>118.190.23.140</redisHost>
         <!-- redis运行端口 -->
-        <redisPort></redisPort>
+        <redisPort>6379</redisPort>
         <!-- 登录密码,无密码留空 -->
-        <redisPass></redisPass>
+        <redisPass>zdl1996</redisPass>
         <!-- 用几号redis数据库 -->
-        <redisDataBaseId></redisDataBaseId>
-        <!-- cache有效时间 -->
-        <redisTTL></redisTTL>
-        <!-- redis连接池连接个数 -->
-        <redisConnectionPoolSize></redisConnectionPoolSize>
+        <redisDataBaseId>0</redisDataBaseId>
+        <!-- cache有效时间 单位是秒(second)-->
+        <redisTTL>10</redisTTL>
     </redisConfig>
 </configurations>

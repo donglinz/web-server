@@ -29,7 +29,7 @@ public:
                      std::string redisPass,
                      std::string redisDataBaseId,
                      std::string redisTTL);
-    static std::string getReadBuffer(std::string & fileName, size_t & ret_length) ;
+
     static void asyncResponse(std::shared_ptr<std::ostream> response, std::shared_ptr<std::string> fileName, std::function<void()> callback);
     static bool getCacheIsOpen();
     static void stop();

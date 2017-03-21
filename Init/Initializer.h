@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <vector>
 #include <dirent.h>
+#include <regex>
 #include "tinyxml2.h"
 
 

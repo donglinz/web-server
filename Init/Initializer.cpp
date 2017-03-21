@@ -214,6 +214,18 @@ bool Initializer::checkConfigurations() {
         std::cerr << "Config error!" << std::endl;
         return false;
     }
+    std::regex regex_ip("([0-9]{1,3}.){3}[0-9]{1,3}");
+    if(config[Configurations::enableCache] == ON &&
+            config[Configurations::useRedisCache] == ON) {
+        if(!std::regex_match(config[Configurations::redisHost], regex_ip) ||
+                config[Configurations::redisPort].empty() ||
+                config[Configurations::redisPass].empty() ||
+                config[Configurations::redisDataBaseId].empty() ||
+                config[Configurations::redisTTL].empty()) {
+            std::cerr << "Config error!" << std::endl;
+            return false;
+        }
+    }
     std::cout << "Config correct!" << std::endl;
     return true;
 }

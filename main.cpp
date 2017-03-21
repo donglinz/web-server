@@ -55,10 +55,12 @@ int main(int argc, char *argv[]) {
 
 void onExit() {
     RedisCacheManager::stop();
+    std::cout << "Bye bye..." << std::endl;
 }
 
 void onSig(int sig) {
     RedisCacheManager::stop();
+    std::cout << "Bye bye..." << std::endl;
 }
 
 void regSig() {
