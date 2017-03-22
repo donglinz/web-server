@@ -19,7 +19,13 @@
 #define DEFAULT_VALUE_HTTPS_SERVER OFF
 #define DEFAULT_VALUE_IP_BLACK_LIST OFF
 #define DEFAULT_VALUE_THREAD_NUM "1"
-
+#define DEFAULT_VALUE_USE_REDIS_CACHE OFF
+#define DEFAULT_VALUE_REDIS_HOST "127.0.0.1"
+#define DEFAULT_VALUE_REDIS_PORT "6379"
+#define DEFAULT_VALUE_REDIS_PASS ""
+#define DEFAULT_VALUE_REDIS_DATABASE_ID "0"
+#define DEFAULT_VALUE_REDIS_TTL "5"
+#define DEFAULT_VALUE_REDIS_CONNECTION_POOL_SIZE "10"
 #define STD_OUTPUT_STREAM 1
 #define STD_ERROR_OUTPUT_STREAM 2
 #define EMPTY_STRING ""
@@ -37,7 +43,13 @@ namespace Configurations {
             "httpsServer",
             "enableCache",
             "ipBlackList",
-            "threadNum"
+            "threadNum",
+            "useRedisCache",
+            "redisHost",
+            "redisPort",
+            "redisPass",
+            "redisDataBaseId",
+            "redisTTL"
     };
     std::unordered_map<std::string, Configuration> confId = {
             {"port", port},
@@ -51,7 +63,13 @@ namespace Configurations {
             {"httpsServer", httpsServer},
             {"enableCache", enableCache},
             {"ipBlackList", ipBlackList},
-            {"threadNum", threadNum}
+            {"threadNum", threadNum},
+            {"useRedisCache", useRedisCache},
+            {"redisHost", redisHost},
+            {"redisPort", redisPort},
+            {"redisPass", redisPass},
+            {"redisDataBaseId", redisDataBaseId},
+            {"redisTTL", redisTTL}
     };
 };
 
@@ -81,6 +99,8 @@ void Initializer::init() {
             logConfig(root->FirstChildElement());
         } else if(!strcmp(content, "cache_config")) {
             cacheConfig(root->FirstChildElement());
+        } else if(!strcmp(content, "redisConfig")) {
+            redisConfig(root->FirstChildElement());
         }
         root = root->NextSiblingElement();
     }
@@ -122,6 +142,10 @@ void Initializer::logConfig(tinyxml2::XMLElement* root) {
 void Initializer::cacheConfig(tinyxml2::XMLElement* root) {
     loadConfig(root);
 }
+/* 加载redis设置 */
+void Initializer::redisConfig(tinyxml2::XMLElement *root) {
+    loadConfig(root);
+}
 
 /* 初始化默认设置 */
 void Initializer::initConfigMap() {
@@ -129,7 +153,7 @@ void Initializer::initConfigMap() {
     config[Configurations::port] = DEFAULT_VALUE_PORT;
     /* default enable catch */
     config[Configurations::enableCache] = DEFAULT_VALUE_ENABLE_CACHE;
-    /* default cache size 10kb */
+    /* default cache size 10mb */
     config[Configurations::cacheSize] = DEFAULT_VALUE_CACHE_SIZE;
     /* default log path ./log */
     config[Configurations::logPath] = DEFAULT_VALUE_LOG_PATH;
@@ -149,6 +173,18 @@ void Initializer::initConfigMap() {
     config[Configurations::ipBlackList] = DEFAULT_VALUE_IP_BLACK_LIST;
     /* default thread num is 1 */
     config[Configurations::threadNum] = DEFAULT_VALUE_THREAD_NUM;
+    /*  */
+    config[Configurations::useRedisCache] = DEFAULT_VALUE_USE_REDIS_CACHE;
+    /*  */
+    config[Configurations::redisHost] = DEFAULT_VALUE_REDIS_HOST;
+    /*  */
+    config[Configurations::redisPort] = DEFAULT_VALUE_REDIS_PORT;
+    /*  */
+    config[Configurations::redisPass] = DEFAULT_VALUE_REDIS_PASS;
+    /*  */
+    config[Configurations::redisDataBaseId] = DEFAULT_VALUE_REDIS_DATABASE_ID;
+    /*  */
+    config[Configurations::redisTTL] = DEFAULT_VALUE_REDIS_TTL;
 }
 
 /* 检车设置是否合法 */
@@ -177,6 +213,17 @@ bool Initializer::checkConfigurations() {
        config[Configurations::privateKey] == EMPTY_STRING)) {
         std::cerr << "Config error!" << std::endl;
         return false;
+    }
+    std::regex regex_ip("([0-9]{1,3}.){3}[0-9]{1,3}");
+    if(config[Configurations::enableCache] == ON &&
+            config[Configurations::useRedisCache] == ON) {
+        if(!std::regex_match(config[Configurations::redisHost], regex_ip) ||
+                config[Configurations::redisPort].empty() ||
+                config[Configurations::redisDataBaseId].empty() ||
+                config[Configurations::redisTTL].empty()) {
+            std::cerr << "Config error!" << std::endl;
+            return false;
+        }
     }
     std::cout << "Config correct!" << std::endl;
     return true;
@@ -224,3 +271,5 @@ void Initializer::loadConfig(tinyxml2::XMLElement* root) {
         root = root->NextSiblingElement();
     }
 }
+
+

@@ -2,12 +2,13 @@
 // Created by ubuntu on 17-3-1.
 //
 
+
 #include "Logger.h"
 
 src::logger Logger::lg;
 src::severity_logger< Logger::severity_level > Logger::slg;
-std::mutex Logger::mutex;
-using boost::shared_ptr;
+std::atomic_flag Logger::atomic_bool = ATOMIC_FLAG_INIT;
+
 
 template< typename CharT, typename TraitsT >
 inline std::basic_ostream< CharT, TraitsT >& operator<< (
@@ -102,27 +103,42 @@ void Logger::setFilter() {
 /* 默认情况下normal级别的日志不会被记录
  * 若要修改过滤器级别 在add_file_log函数处修改并重新编译程序 */
 void Logger::LogNormal(std::string msg) {
-    std::unique_lock<std::mutex> lck(mutex);
+    while(atomic_bool.test_and_set()) {
+        std::this_thread::yield();
+    }
     BOOST_LOG_SEV(slg, normal) << msg;
+    atomic_bool.clear();
 }
 
 void Logger::LogNotification(std::string msg) {
-    std::unique_lock<std::mutex> lck(mutex);
+    while(atomic_bool.test_and_set()) {
+        std::this_thread::yield();
+    }
     BOOST_LOG_SEV(slg, notification) << msg;
+    atomic_bool.clear();
 }
 
 void Logger::LogWarning(std::string msg) {
-    std::unique_lock<std::mutex> lck(mutex);
+    while(atomic_bool.test_and_set()) {
+        std::this_thread::yield();
+    }
     BOOST_LOG_SEV(slg, warning) << msg;
+    atomic_bool.clear();
 }
 
 void Logger::LogError(std::string msg) {
-    std::unique_lock<std::mutex> lck(mutex);
+    while(atomic_bool.test_and_set()) {
+        std::this_thread::yield();
+    }
     BOOST_LOG_SEV(slg, error) << msg;
+    atomic_bool.clear();
 }
 
 void Logger::LogCritical(std::string msg) {
-    std::unique_lock<std::mutex> lck(mutex);
+    while(atomic_bool.test_and_set()) {
+        std::this_thread::yield();
+    }
     BOOST_LOG_SEV(slg, critical) << msg;
+    atomic_bool.clear();
 }
 

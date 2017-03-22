@@ -4,26 +4,24 @@
 
 #ifndef WEB_SERVER_CACHEMANAGER_H
 #define WEB_SERVER_CACHEMANAGER_H
-#include <string>
-#include <cstring>
+
+#include "DiskReader.h"
 #include <memory>
-#include <iostream>
+#include <fstream>
 #include <unordered_map>
 #include <map>
-#include <list>
 #include <mutex>
-#include <fstream>
+#include <cstring>
 class CacheManager {
 public:
     static void init(std::string enableCache, std::string cacheSize);
-    static char* getReadBuffer(std::string & fileName, size_t & ret_length);
-    static void unlockMutex();
+    static void getReadBuffer(const std::string & fileName, std::ostream & response);
     static bool getCacheIsOpen();
+
 private:
     static bool cacheIsOpen;
     static unsigned long maxMemorySize;
     static unsigned long allocatedMemorySize;
-
     struct MemBlock {
         std::shared_ptr<char> mem;
         MemBlock *pre, *next;
@@ -108,7 +106,6 @@ private:
     static std::map<MemBlock *, std::string> ptrToName;
     static LinkedList memlist;
     static std::mutex mutex;
-
 };
 
 

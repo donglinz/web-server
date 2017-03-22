@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <vector>
 #include <dirent.h>
+#include <regex>
 #include "tinyxml2.h"
 
 
@@ -30,6 +31,12 @@ namespace Configurations {
         enableCache,
         ipBlackList,
         threadNum,
+        useRedisCache,
+        redisHost,
+        redisPort,
+        redisPass,
+        redisDataBaseId,
+        redisTTL,
         emptyKey
     };
 }
@@ -49,6 +56,8 @@ private:
     static void cacheConfig(tinyxml2::XMLElement* root);
     static bool checkConfigurations();
     static void showConfigurations(int fd);
+
+    static void redisConfig(tinyxml2::XMLElement *pElement);
 };
 
 

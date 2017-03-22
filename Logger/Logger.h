@@ -7,11 +7,7 @@
 
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
 #include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/sources/record_ostream.hpp>
 #include <map>
 #include <iostream>
@@ -26,8 +22,9 @@
 #include <boost/log/support/date_time.hpp>
 #include <boost/log/sources/severity_feature.hpp>
 #include <boost/log/sources/severity_logger.hpp>
-#include <mutex>
 #include <vector>
+#include <atomic>
+#include <thread>
 
 namespace expr = boost::log::expressions;
 namespace logging = boost::log;
@@ -61,9 +58,7 @@ private:
     static src::logger lg;
 
     static src::severity_logger< severity_level > slg;
-
-    static std::mutex mutex;
-
+    static std::atomic_flag atomic_bool;
 };
 
 

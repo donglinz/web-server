@@ -1,12 +1,15 @@
 <h1>WebServer based on Boost asio</h1>
+dev 版本，加入了对redis缓存的支持。异步返回redis中的缓存数据。   
 
 [English version](https://github.com/Iridesscent/web-server/blob/master/README_en.md)
 
-基于Boost Asio的多线程Web服务器。
-服务器由Web服务模块，日志模块，Cache模块，XML配置模块构成
-支持HTTP，HTTPS协议。HTTPS协议用asio::ssl::context对象对socket数据流进行加密。
-支持静态HTML页面，GET/POST方法，可以方便的进行横向扩展以支持新的请求方法。
-服务器Cache利用LRU算法进行页面替换，减少磁盘IO次数，Cache大小可以在XML配置 文件中指定。Log系统支持日志轮转，设置最大日志占用空间，定时轮转，过滤器等功能。   
+基于Boost Asio的多线程Web服务器。   
+
+1.  服务器由Web服务模块，日志模块，Cache模块，XML配置模块构成。
+2.  支持HTTP，HTTPS协议。HTTPS协议用asio::ssl::context对象对socket数据流进行加密。
+3.  支持静态HTML页面，GET/POST方法，可以方便的进行横向扩展以支持新的请求方法。
+4.  日志系统支持日志轮转，设置最大日志占用空间，定时轮转，过滤器等功能。
+5.  缓存系统支持两种缓存，第一种是本服务器自带内存缓存，可以制定缓存大小，用LRU算法进行替换。第二种缓存是用Redis做页面缓存，需要在配置文件里完成Redis相应配置。换句话说，本数据库有三种缓存策略，无缓存，内存缓存和Redis缓存。在通常情况下，Redis缓存能获得更好的并发效率。
 
 <h1>OS</h1>
 
@@ -25,6 +28,7 @@ G++5及以上
 > boost_log 
 > boost_thread 
 > boost_log_setup 
+> boost_regex
 
 开发环境Boost版本为1.63.0
 详情见[Boost 1_63_0官方文档](http://www.boost.org/doc/)
@@ -54,7 +58,8 @@ Run as a HTTP/HTTPS server:<br>
 ```
 nohup ./web_server &
 ```
-
+<h1>Stress Testing</h1>
+IN COMMING
 
 <h1>DEMO</h1>
 

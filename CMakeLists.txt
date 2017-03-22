@@ -11,8 +11,17 @@ set(SOURCE_FILES
         ServerHttps.hpp
         XMLReader/tinyxml2.h
         XMLReader/tinyxml2.cpp Init/Initializer.cpp Init/Initializer.h
-        CacheSystem/CacheManager.cpp CacheSystem/CacheManager.h Logger/Logger.cpp Logger/Logger.h)
-include_directories(XMLReader Init Logger CacheSystem)
-link_libraries(-lboost_system -lssl -lcrypto -lpthread
-        -lboost_log -lboost_thread -lboost_log_setup)
+        CacheSystem/CacheManager.cpp CacheSystem/CacheManager.h
+        Logger/Logger.cpp Logger/Logger.h
+        CacheSystem/IOSystem.cpp CacheSystem/IOSystem.h
+        CacheSystem/RedisCacheManager.cpp CacheSystem/RedisCacheManager.h CacheSystem/DiskReader.cpp CacheSystem/DiskReader.h)
+
+include_directories(XMLReader Init Logger CacheSystem
+        cpp_redis cpp_redis/builders cpp_redis/network)
+link_directories(lib)
+link_libraries(-lboost_system
+        -lssl -lcrypto -lpthread
+        -lboost_log -lboost_thread
+        -lboost_log_setup libcpp_redis.a libtacopie.a
+        -lboost_regex)
 add_executable(web_server ${SOURCE_FILES})
