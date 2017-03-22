@@ -1,5 +1,5 @@
 <h1>WebServer based on Boost asio</h1>
-dev 版本，加入了对redis缓存的支持。异步返回redis中的缓存数据。   
+
 
 [English version](https://github.com/Iridesscent/web-server/blob/master/README_en.md)
 
