@@ -28,7 +28,7 @@ void CacheManager::init(std::string enableCache, std::string cacheSize) {
 }
 
 
-void CacheManager::getReadBuffer(std::string & fileName, std::ostream & response) {
+void CacheManager::getReadBuffer(const std::string & fileName, std::ostream & response) {
     /* threads concurrency */
     std::unique_lock<std::mutex> lck(mutex);
     /* cache命中 */
@@ -37,7 +37,7 @@ void CacheManager::getReadBuffer(std::string & fileName, std::ostream & response
         MemBlock *pos = nameToPtr[fileName];
         memlist.erase(pos, false);
         memlist.push_front(pos);
-        DiskReader::cacheResponse(response, pos->mem.get(), pos->length);
+        DiskReader::cacheResponse(response, pos->mem.get(), pos->length, fileName);
 //        ret_length = pos->length;
 //        return pos->mem.get();
         return;
@@ -94,7 +94,7 @@ void CacheManager::getReadBuffer(std::string & fileName, std::ostream & response
     nameToPtr[fileName] = memlist.head;
     ifs.close();
 
-    DiskReader::cacheResponse(response, newMemBlock->mem.get(), length - 1);
+    DiskReader::cacheResponse(response, newMemBlock->mem.get(), length - 1, fileName);
 //    ret_length = length - 1;
 //    return newMemBlock->mem.get();
 }

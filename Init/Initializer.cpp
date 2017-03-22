@@ -219,7 +219,6 @@ bool Initializer::checkConfigurations() {
             config[Configurations::useRedisCache] == ON) {
         if(!std::regex_match(config[Configurations::redisHost], regex_ip) ||
                 config[Configurations::redisPort].empty() ||
-                config[Configurations::redisPass].empty() ||
                 config[Configurations::redisDataBaseId].empty() ||
                 config[Configurations::redisTTL].empty()) {
             std::cerr << "Config error!" << std::endl;

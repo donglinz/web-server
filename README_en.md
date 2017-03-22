@@ -3,11 +3,12 @@
 # Description
 Multithreading Web Server Based on Boost Asio.   
 
-> The server is composed of Web service module, log module, cache module and XML configuration module.
-> Support HTTP, HTTPS protocol. In HTTPS protocol data stream was encrypted by asio::ssl::context object.
-> Support static HTML page, GET/POST method. Server can be easily extended horizontally to support the new request method.
-> The server cache uses the LRU algorithm for page replacement to reduce the frequency of IO operation, cache size is configurable. 
-> Log system supports log rotation, set the maximum log space, timing rotation, filters and other functions. 
+1.  The server is composed of Web service module, log module, cache module and XML configuration module.
+2.  Support HTTP, HTTPS protocol. In HTTPS protocol data stream was encrypted by asio::ssl::context object.
+3.  Support static HTML page, GET/POST method. Server can be easily extended horizontally to support the new request method.
+4.  There are three server cache strategy available. No cache, Server Memory Cache and Redis Cache. Server memory cache replacement policy is LRU algorithm. In most scenario, using redis cache will obtain better parallel efficiency.
+5.  Log system supports log rotation, set the maximum log space, timing rotation, filters and other functions. 
+6.  All the configurations should write to WebConfig.xml
 
 # OS
 
@@ -57,6 +58,8 @@ Run as a HTTP/HTTPS server:<br>
 nohup ./web_server &
 ```
 
+# Stress Testing
+IN COMMING.
 
 # DEMO
 

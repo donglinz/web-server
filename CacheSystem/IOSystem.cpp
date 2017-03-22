@@ -33,7 +33,7 @@ IOSystem::CacheType IOSystem::getCacheType() {
     return cacheType;
 }
 
-void IOSystem::syncResponse(std::ostream &os, std::string &fileName, std::string &ipAddress) {
+void IOSystem::syncResponse(std::ostream &os, const std::string &fileName, std::string &ipAddress) {
     Logger::LogNotification("Host from " + ipAddress + " Request file:" + fileName);
     if(cacheType == serverCache)
         CacheManager::getReadBuffer(fileName, os);

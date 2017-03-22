@@ -6,10 +6,10 @@
 #define WEB_SERVER_REDISCACHEMANAGER_H
 
 
-/* 设置异步redis驱动多长时间刷新一次缓存 默认300ms刷新一次 */
+/* 设置异步redis驱动多长时间刷新一次缓存 默认50ms刷新一次 */
 
 #ifndef REDIS_HANDLER_FLUSH_INTERVAL_IN_MICRISECONDS
-#define REDIS_HANDLER_FLUSH_INTERVAL_IN_MICRISECONDS 300
+#define REDIS_HANDLER_FLUSH_INTERVAL_IN_MICRISECONDS 50
 #endif
 
 #include <algorithm>
@@ -40,11 +40,11 @@ private:
     static std::string pass;
     static std::string dataBaseId;
     static int TTL;
-    static cpp_redis::redis_client client;
+    static std::shared_ptr<cpp_redis::redis_client> client;
     static boost::asio::io_service io_service;
     static std::function<void(cpp_redis::redis_client&)> disConnectCallback;
-    static void respokseOK(std::ostream& response, const std::string& content);
-    static void setTimer(boost::posix_time::microsec timeInterval);
+    static void responseOK(std::ostream& response, const std::string& content, std::shared_ptr<std::string> fileName);
+    static void setTimer(boost::posix_time::millisec timeInterval);
 };
 
 

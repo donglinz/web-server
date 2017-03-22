@@ -22,5 +22,6 @@ link_directories(lib)
 link_libraries(-lboost_system
         -lssl -lcrypto -lpthread
         -lboost_log -lboost_thread
-        -lboost_log_setup libcpp_redis.a libtacopie.a)
+        -lboost_log_setup libcpp_redis.a libtacopie.a
+        -lboost_regex)
 add_executable(web_server ${SOURCE_FILES})

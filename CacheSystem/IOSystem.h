@@ -20,7 +20,7 @@ public:
                      std::string redisDataBaseId,
                      std::string redisTTL);
     static std::string getReadBuffer(std::string & fileName, size_t & write_len);
-    static void syncResponse(std::ostream & os, std::string & fileName, std::string & ipAddress);
+    static void syncResponse(std::ostream & os, const std::string & fileName, std::string & ipAddress);
     static void asyncResponse(std::shared_ptr<std::ostream> os, std::shared_ptr<std::string> fileName, std::shared_ptr<std::string> ipAddress, std::function<void()> callback);
     static CacheType getCacheType();
 private:

@@ -12,6 +12,7 @@
 #include "Initializer.h"
 #include "Logger.h"
 #include "IOSystem.h"
+#include <boost/regex.hpp>
 
 
 namespace WebServer{
@@ -239,9 +240,10 @@ namespace WebServer{
         std::shared_ptr<Request> request = std::make_shared<Request>(WebServer::Request());
         // 使用正则表达式对请求报头进行解析，通过下面的正则表达式
         // 可以解析出请求方法(GET/POST)、请求路径以及 HTTP 版本
-        static std::regex regex_header = std::regex("^([^ ]*) ([^ ]*) HTTP/([^ ]*)$");
-        static std::regex regex_body = std::regex("^([^:]*): ?(.*)$");
-        static std::smatch sub_match;
+        static boost::regex regex_header = boost::regex("^([^ ]*) ([^ ]*) HTTP/([^ ]*)$");
+
+        static boost::regex regex_body = boost::regex("^([^:]*): ?(.*)$");
+        boost::smatch sub_match;
         //std::regex regex("^([^ ]*) ([^ ]*) HTTP/([^ ]*)$");
 
         //从第一行中解析请求方法、路径和 HTTP 版本
@@ -249,10 +251,11 @@ namespace WebServer{
 
         std::getline(stream, line);
         line.pop_back();
-        if (std::regex_match(line, sub_match, regex_header)) {
+        if (boost::regex_match(line, sub_match, regex_header)) {
             request->method = sub_match[1];
             request->path = sub_match[2];
             request->http_version = sub_match[3];
+
             if((request->path).find('?') != std::string::npos) {
                 request->path = (request->path).substr(0, (request->path).find('?'));
             }
@@ -261,7 +264,7 @@ namespace WebServer{
             do {
                 getline(stream, line);
                 line.pop_back();
-                matched = std::regex_match(line, sub_match, regex_body);
+                matched = boost::regex_match(line, sub_match, regex_body);
                 if (matched) {
                     request->header[sub_match[1]] = sub_match[2];
                 }
@@ -292,7 +295,7 @@ namespace WebServer{
                         [this, socket, write_buffer, request]()->void {
                             boost::asio::async_write(*socket, *write_buffer,
                                                      [this, socket, request, write_buffer](const boost::system::error_code& ec, size_t bytes_transferred) {
-                                                         // HTTP 持久连接(HTTP 1.1), 递归调用
+                                                         // HTTP 持久连接(HTTP 1.1),
                                                          if(!ec && stod(request->http_version)>1.05)
                                                              process_request_and_response(socket);
                                                      });
@@ -408,9 +411,7 @@ namespace WebServer{
                                  } else {
                                      // root directory of web resource
                                      //std::string filename = "web";
-                                     std::string path = request->path_match[0];
-                                     std::string filename = generateFileName(path);
-                                     IOSystem::syncResponse(*response, filename, *ipAddress);
+                                     IOSystem::syncResponse(*response, generateFileName(request->path_match[0]), *ipAddress);
                                      //respondFileContent(response, filename, ipAddress);
                                  }
                              });

@@ -15,7 +15,7 @@
 class CacheManager {
 public:
     static void init(std::string enableCache, std::string cacheSize);
-    static void getReadBuffer(std::string & fileName, std::ostream & response);
+    static void getReadBuffer(const std::string & fileName, std::ostream & response);
     static bool getCacheIsOpen();
 
 private:
