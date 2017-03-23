@@ -64,7 +64,7 @@ nohup ./web_server &
 模拟3000个用户对七个页面并发访问，每个用户每秒访问一个页面    
 结果如下：   
 
-![测试结果](iridescent.com.cn/Reference/LoadTest.png)   
+![测试结果](http://iridescent.com.cn/Reference/LoadTest.png)   
 服务器cpu负载一直在20左右
 <h1>DEMO</h1>
 
