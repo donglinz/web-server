@@ -58,9 +58,14 @@ Run as a HTTP/HTTPS server:<br>
 ```
 nohup ./web_server &
 ```
-<h1>Stress Testing</h1>
-IN COMMING
+<h1>Load Test</h1>   
+运行在Redis缓存模式下
+服务器配置：阿里云双核Intel(R) Xeon(R) CPU E5-2682 v4 @ 2.50GHz 4G RAM   
+模拟3000个用户对七个页面并发访问，每个用户每秒访问一个页面    
+结果如下：   
 
+![测试结果](iridescent.com.cn/Reference/LoadTest.png)   
+服务器cpu负载一直在20左右
 <h1>DEMO</h1>
 
 [http://118.190.23.140:1234/index.html](http://118.190.23.140:1234/index.html)<br>
