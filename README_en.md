@@ -64,7 +64,7 @@ Server hardware: Alibaba CloudIntel(R) Xeon(R) CPU E5-2682 v4 @ 2.50GHz 4G RAM �
 simulating 3000 client click website concurrently per second.     
 The testing results illustrated as fllows.  
 
-![results](iridescent.com.cn/Reference/LoadTest.png)   
+![results](http://iridescent.com.cn/Reference/LoadTest.png)   
 Server cpu load has been around 20 percent.
 
 # DEMO
