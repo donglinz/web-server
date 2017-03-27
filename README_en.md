@@ -31,7 +31,7 @@ All the lib below should be added to CMakeLists.txt
 My boost lib version is 1.63.0, so boost 1.63.0 or higher is recommended.
 For more infromation, See [Boost 1_63_0 doc](http://www.boost.org/doc/).
 
-It is strongly recommended to compile the program and your Boost library with the same compiler on your computer to prevent errors when linking the Dynamic-Link librarys.
+It is strongly recommended to compile the program and your Boost library with the same compiler on your computer to prevent errors while linking the Dynamic-Link librarys.
 # Make
 
 ```
@@ -60,7 +60,7 @@ nohup ./web_server &
 
 # Load Test 
 Run the server in redis cache model.
-Server hardware: Alibaba CloudIntel(R) Xeon(R) CPU E5-2682 v4 @ 2.50GHz 4G RAM   
+Server hardware: Alibaba Cloud Intel(R) Xeon(R) CPU E5-2682 v4 @ 2.50GHz 4G RAM   
 simulating 3000 client click website concurrently per second.     
 The testing results illustrated as fllows.  
 
