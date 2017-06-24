@@ -73,3 +73,6 @@ Server cpu load has been around 20 percent.
 
 # Contact me
 392183501@outlook.com<br>
+
+# Bug Report
+If you find any underlying Bugs, please feel free to contact me.
