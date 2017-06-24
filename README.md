@@ -72,3 +72,6 @@ nohup ./web_server &
 
 <h1>Contact me</h1>
 392183501@outlook.com<br>
+
+<h1>Bug Report</h1>
+欢迎提交issue/邮件联系，我会尽快回复，谢谢！
