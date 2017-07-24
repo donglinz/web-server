@@ -106,6 +106,7 @@ void RedisCacheManager::responseOK(std::ostream& response, const std::string& co
 }
 
 void RedisCacheManager::stop() {
+    io_service.stop();
     if(client && client->is_connected())
         client->disconnect();
 }
