@@ -15,4 +15,4 @@ install:
   - sudo ./b2
   - sudo ./b2 install 
   - cd ..
-script: cmake CMakeLists.txt && make
+script: cd /home/travis/build/Iridesscent/web-server/ && cmake CMakeLists.txt && make
