@@ -151,7 +151,7 @@ namespace WebServer{
     template<typename socket_type>
     WebServer::ServerBase<socket_type>::~ServerBase()
     {
-        this.stop();
+        this->stop();
     }
 
     template<typename socket_type>
