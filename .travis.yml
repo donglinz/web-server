@@ -10,9 +10,7 @@ addons:
 install:
   - sudo wget -O boost_1_64_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.gz/download
   - sudo tar xzf boost_1_64_0.tar.gz
-  - cd boost_1_64_0/
-  - sudo ./bootstrap.sh --prefix=/usr/ --with-libraries=system,log,thread,regex
-  - sudo ./b2
-  - sudo ./b2 install 
-  - cd ..
-script: cd /home/travis/build/Iridesscent/web-server/ && cmake CMakeLists.txt && make
+  - sudo boost_1_64_0/bootstrap.sh --prefix=/usr/ --with-libraries=system,log,thread,regex
+  - sudo boost_1_64_0/b2
+  - sudo boost_1_64_0/b2 install 
+script: cmake CMakeLists.txt && make
