@@ -1,0 +1,24 @@
+language: cpp
+compiler:
+  - g++-5
+#  - g++
+script: cmake CMakeLists.txt && make
+
+# need to install the Boost libraries to the sandbox
+before_script:
+  - sudo apt-get update -qq
+  - sudo apt-get install libboost-thread-dev libboost-log-dev libboost-system-dev libboost-regex-dev
+
+notifications:
+  email:
+    recipients: dongliniris@gmail.com
+    on_success: change
+    on_failure: always
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-5
+    - g++-5

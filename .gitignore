@@ -12,4 +12,5 @@ server.key.old
 web_server
 php/
 web_server.cbp
+Makefile
 build/
