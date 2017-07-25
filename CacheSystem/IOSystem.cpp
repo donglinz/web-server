@@ -4,9 +4,9 @@
 
 #include "IOSystem.h"
 IOSystem::CacheType IOSystem::cacheType;
-std::string IOSystem::getReadBuffer(std::string &fileName, size_t &write_len) {
-    return std::__cxx11::string();
-}
+//std::string IOSystem::getReadBuffer(std::string &fileName, size_t &write_len) {
+//    return std::__cxx11::string();
+//}
 
 void IOSystem::init(std::string notFoundFile,
                     std::string enableCache,
