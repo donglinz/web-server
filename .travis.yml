@@ -2,7 +2,7 @@ language: cpp
 compiler:
   - g++-5
 #  - g++
-script: cmake CMakeLists.txt && make
+script: cmake -DCMAKE_CXX_COMPILER=g++-5 -DCMAKE_C_COMPILER=gcc-5 CMakeLists.txt && make
 
 # need to install the Boost libraries to the sandbox
 before_script:
