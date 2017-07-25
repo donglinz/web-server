@@ -1,16 +1,16 @@
-sudo: true
 language: cpp
-compiler: g++
-os: linux
-addons:
-  apt:
-    packates:
-      - cmake
-      - g++5.4
-install:
-  - sudo wget -O boost_1_64_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.gz/download
-  - sudo tar xzf boost_1_64_0.tar.gz
-  - sudo boost_1_64_0/bootstrap.sh --prefix=/usr/ --with-libraries=system,log,thread,regex
-  - sudo boost_1_64_0/b2
-  - sudo boost_1_64_0/b2 install 
+compiler:
+  - g++
+#  - g++
 script: cmake CMakeLists.txt && make
+
+# need to install the Boost libraries to the sandbox
+before_script:
+  - sudo apt-get update -qq
+  - sudo apt-get install libboost-thread-dev libboost-log-dev libboost-system-dev libboost-regex-dev
+
+notifications:
+  email:
+    recipients: dongliniris@gmail.com
+    on_success: change
+    on_failure: always
