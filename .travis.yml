@@ -1,12 +1,17 @@
+sudo: true
 language: cpp
 compiler: g++
 os: linux
 addons:
   apt:
-    sources:
-      - boost-latest
     packates:
-      - libboost-1.58-all-dev
       - cmake
       - g++5.4
+install:
+  - sudo wget -O boost_1_64_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.gz/download
+  - sudo tar xzvf boost_1_64_0.tar.gz
+  - cd boost_1_64_0/
+  - sudo ./bootstrap.sh --prefix=/usr/ --with-libraries=boost_system,boost_log,boost_thread,boost_log_setup,boost_regex
+  - sudo ./b2
+  - sudo ./b2 install 
 script: cmake CMakeLists.txt && make
