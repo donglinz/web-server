@@ -84,6 +84,6 @@ std::string DiskReader::getStrFromDisk(const std::string &fileName) {
 
 std::string DiskReader::getContentType(const std::string &fileName) {
     if(fileName.length() >= 5 && fileName.substr(fileName.length() - 5) == ".html") return "\r\nContent-Type:text/html";
-    return std::__cxx11::string();
+    return std::string();
 }
 
