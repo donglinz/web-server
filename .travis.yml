@@ -1,5 +1,6 @@
 language: cpp
 compiler: g++
+os: linux
 addons:
   apt:
     sources:
@@ -7,4 +8,5 @@ addons:
     packates:
       - libboost-1.58-all-dev
       - cmake
+      - g++5.4
 script: cmake CMakeLists.txt && make
