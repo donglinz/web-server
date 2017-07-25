@@ -1,0 +1,10 @@
+language: cpp
+compiler: g++
+addons:
+  apt:
+    sources:
+      - boost-latest
+    packates:
+      - libboost-1.58-all-dev
+      - cmake
+script: cmake CMakeLists.txt && make
