@@ -1,6 +1,6 @@
 language: cpp
 compiler:
-  - g++
+  - g++-5
 #  - g++
 script: cmake CMakeLists.txt && make
 
@@ -14,3 +14,11 @@ notifications:
     recipients: dongliniris@gmail.com
     on_success: change
     on_failure: always
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-5
+    - g++-5
