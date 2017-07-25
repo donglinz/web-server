@@ -14,4 +14,5 @@ install:
   - sudo ./bootstrap.sh --prefix=/usr/ --with-libraries=system,log,thread,regex
   - sudo ./b2
   - sudo ./b2 install 
-script: cd .. && cmake CMakeLists.txt && make
+  - cd ..
+script: cmake CMakeLists.txt && make
