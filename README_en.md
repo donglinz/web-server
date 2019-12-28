@@ -72,7 +72,4 @@ Server cpu load has been around 20 percent.
 [http://118.190.23.140:1234/index.html](http://118.190.23.140:1234/index.html)<br>
 
 # Contact me
-392183501@outlook.com<br>
-
-# Bug Report
-If you find any underlying Bugs, please feel free to contact me.
+donglinzhuang@outlook.com
